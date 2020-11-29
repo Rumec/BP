@@ -34,5 +34,38 @@ def test_usporadani(graf, v, w):
     return graf.k[v] < graf.k[w]
 
 
-def zpetny_pruzkum(graf, v, w, B):
-   
+def zpetny_pruzkum(graf, start, w, B):
+    if start == w:
+        return 1
+    B.add(start)
+    if
+
+
+def rekurzivni_zpetny_pruzkum(graf, start, w, B):
+    """
+    Princip DFS
+
+    :param graf:
+    :param start:
+    :param w:
+    :param B:
+    :return:    0 - prosel mene nez delta hran
+                1 - narazil na vrchol w -> oznamuje cyklus
+                2 - prosel vice net delta hran
+    """
+    if start == w:
+        return 1
+    B.add(start)
+    for naslednik in graf.e_out[start]:
+        if len(B) >= graf.delta:
+            return 2
+        # Preskoci opetovny pruzkum jiz prozkoumanych vrcholu
+        if naslednik in B:
+            continue
+        if rekurzivni_zpetny_pruzkum(graf, naslednik, w, B) == 1:
+            return 1
+    return 0
+
+
+def rekurzivni_dopredny_pruzkum(graf, start, B, F):
+    
