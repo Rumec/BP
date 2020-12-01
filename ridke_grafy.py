@@ -1,4 +1,5 @@
 from math import sqrt
+from collections import deque
 
 
 class Graph:
@@ -38,7 +39,6 @@ def zpetny_pruzkum(graf, start, w, B):
     if start == w:
         return 1
     B.add(start)
-    if
 
 
 def rekurzivni_zpetny_pruzkum(graf, start, w, B):
@@ -67,5 +67,17 @@ def rekurzivni_zpetny_pruzkum(graf, start, w, B):
     return 0
 
 
-def rekurzivni_dopredny_pruzkum(graf, start, B, F):
-    
+def iterativni_dopredny_pruzkum(graf, w, B):
+    F = {w}
+    while F:
+        a = F.pop()
+        for b in graf.e_out[a]:
+            if b in B:
+                return True
+            if graf.k[a] == graf.k[b]:
+                graf.e_in[b].add(a)
+            elif graf.k[a] > graf.k[b]:
+                graf.k[b] = graf.k[a]
+                graf.e_in[b] = {a}
+                F.add(b)
+    return False
