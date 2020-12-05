@@ -105,7 +105,7 @@ def rekurzivni_zpetny_pruzkum(graf, start, w, B):
                     1 - narazil na vrchol w, oznamujeme tedy vznik cyklu
                     2 - prosel vice nez delta hran
     """
-    # Zeptat se, zda raději neházet exception!!
+    # TODO: Zeptat se, zda raději neházet exception!!
     if start == w:
         return 1
     B.add(start)
