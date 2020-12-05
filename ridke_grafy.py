@@ -13,7 +13,8 @@ class Graf:
         m:      pocet hran v grafu
         delta:  hranice pro zpetny pruzkum
         k:      seznam urovni aktualne prirazeny vsem vrcholum v grafu
-        e_in:   seznam obsahujici mnozinu vstupnich hran in() pro vsechny vrcholy dle definice
+        e_in:   seznam obsahujici mnozinu vstupnich hran in() pro vsechny vrcholy dle definice (pro in(v) tedy plati, ze
+                obsahuje takove hrany (x, v), pro ktere plati k(x) = k(v)
         e_out:  seznam obsahujici mnozinu vystupnich hran out() pro vsechny vrcholy (seznam nasledniku)
     """
 
