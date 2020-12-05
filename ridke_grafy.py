@@ -20,7 +20,7 @@ class Graf:
 
     def __init__(self, vrcholy):
         """
-        Konstruktor, inicializuje graf do iniciálního stavu popsaného v práci.
+        Konstruktor, inicializuje graf do inicialniho stavu popsaneho v praci.
 
         :param vrcholy: pocet vrcholu grafu, int
         """
@@ -32,11 +32,10 @@ class Graf:
         self.e_in = []
         self.e_out = []
 
-        # Inicializace urovni vsech vrcholu na 1 a nastavení množin in() a out() jako prázdné
-        for i in range(vrcholy):
-            self.k = [1 for _ in range(vrcholy)]
-            self.e_in = [set() for _ in range(vrcholy)]
-            self.e_out = [set() for _ in range(vrcholy)]
+        # Inicializace urovni vsech vrcholu na 1 a nastaveni mnozin in() a out() pro vsechny vrcholy jako prazdne
+        self.k = [1 for _ in range(vrcholy)]
+        self.e_in = [set() for _ in range(vrcholy)]
+        self.e_out = [set() for _ in range(vrcholy)]
 
 
 def vloz_hranu(graf, hrana):
@@ -100,7 +99,7 @@ def rekurzivni_zpetny_pruzkum(graf, start, w, B):
     :param graf:    graf do nehoz hranu vkladame
     :param start:   vrchol, ktery algoritmus aktualne prozkoumava
     :param w:       vrchol, do ktereho vede vkladana hrana
-    :param B:       množina navstivenych vrcholu
+    :param B:       mnozina navstivenych vrcholu
     :return:        cislo odpovidajici vysledku pruzkumu
                     0 - prosel mene nez delta hran
                     1 - narazil na vrchol w, oznamujeme tedy vznik cyklu
