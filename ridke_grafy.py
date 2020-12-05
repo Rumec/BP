@@ -12,9 +12,9 @@ class Graf:
         n:      pocet vrcholu grafu
         m:      pocet hran v grafu
         delta:  hranice pro zpetny pruzkum
-        k:      slovnik urovni aktualne prirazeny vsem vrcholum v grafu
-        e_in:   slovnik obsahujici mnozinu vstupnich hran in() pro vsechny vrcholy dle definice
-        e_out:  slovnik obsahujici mnozinu vystupnich hran out() pro vsechny vrcholy (seznam nasledniku)
+        k:      seznam urovni aktualne prirazeny vsem vrcholum v grafu
+        e_in:   seznam obsahujici mnozinu vstupnich hran in() pro vsechny vrcholy dle definice
+        e_out:  seznam obsahujici mnozinu vystupnich hran out() pro vsechny vrcholy (seznam nasledniku)
     """
 
     def __init__(self, vrcholy):
@@ -27,15 +27,15 @@ class Graf:
         self.m = 0
         self.delta = 0
 
-        self.k = dict()
-        self.e_in = dict()
-        self.e_out = dict()
+        self.k = []
+        self.e_in = []
+        self.e_out = []
 
         # Inicializace urovni vsech vrcholu na 1 a nastavení množin in() a out() jako prázdné
         for i in range(vrcholy):
-            self.k[i] = 1
-            self.e_in[i] = set()
-            self.e_out[i] = set()
+            self.k = [1 for _ in range(vrcholy)]
+            self.e_in = [set() for _ in range(vrcholy)]
+            self.e_out = [set() for _ in range(vrcholy)]
 
 
 def vloz_hranu(graf, hrana):
