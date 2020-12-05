@@ -1,4 +1,4 @@
-from math import sqrt, ceil
+from math import sqrt
 
 
 class Graf:
@@ -110,15 +110,21 @@ def rekurzivni_zpetny_pruzkum(graf, start, w, B):
         return 1
     B.add(start)
     for naslednik in graf.e_in[start]:
+        # Bylo prozkoumano vice nez delta hran, '+ 1' je zde kvuli skutecnosti, ze hran mezi vrcholy je vzdy o 1 mene
+        # nez vrcholu a do mnoziny B ukladame z praktickych duvodu vrcholy a ne hrany
+        if len(B) >= graf.delta + 1:
+            return 2
         # Preskoci opetovny pruzkum jiz prozkoumanych vrcholu
         if naslednik in B:
             continue
+        status = rekurzivni_zpetny_pruzkum(graf, naslednik, w, B)
         # Rekurzivni volani zpetneho pruzkumu narazilo na vrchol w
-        if rekurzivni_zpetny_pruzkum(graf, naslednik, w, B) == 1:
+        if status == 1:
             return 1
         # Bylo prozkoumano vice nez delta hran
-        if len(B) >= graf.delta + 1:
+        elif status == 2:
             return 2
+
     return 0
 
 
@@ -164,7 +170,7 @@ def pridani_hrany(graf, v, w):
     if graf.k[v] == graf.k[w]:
         graf.e_in[w].add(v)
     graf.m += 1
-    graf.delta = min(ceil(sqrt(graf.m)), ceil(pow(graf.n, 2 / 3)))
+    graf.delta = min(sqrt(graf.m), pow(graf.n, 2 / 3))
 
 
 #######################################################################################################################
