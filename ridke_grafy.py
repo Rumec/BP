@@ -108,10 +108,9 @@ def rekurzivni_zpetny_pruzkum(graf, start, w, B):
     :param start:   vrchol, ktery algoritmus aktualne prozkoumava
     :param w:       vrchol, do ktereho vede vkladana hrana
     :param B:       mnozina navstivenych vrcholu
-    :return:        cislo odpovidajici vysledku pruzkumu
-                    0 - prosel mene nez delta hran
-                    1 - narazil na vrchol w, oznamujeme tedy vznik cyklu
-                    2 - prosel vice nez delta hran
+    :return:        Status.Mene_nez_delta_hran - prosel mene nez delta hran
+                    Status.Cyklus_nalezen - narazil na vrchol w, oznamujeme tedy vznik cyklu
+                    Status.Vice_nez_delta_hran - prosel vice nez delta hran
     """
     if start == w:
         return Status.Cyklus_nalezen
