@@ -1,4 +1,5 @@
 from math import sqrt
+import enum
 
 
 class Graf:
@@ -38,6 +39,13 @@ class Graf:
         self.e_out = [set() for _ in range(vrcholy)]
 
 
+class Status(enum.Enum):
+    Mene_nez_delta_hran = 0
+    Cyklus_nalezen = 1
+    Vice_nez_delta_hran = 2
+
+
+
 def vloz_hranu(graf, hrana):
     """
     Hlavni funkce vkladani hrany. Pro prehlednost clenena do mensich funkci.
@@ -55,15 +63,15 @@ def vloz_hranu(graf, hrana):
         # Plati k(v) >= k(w), a tedy pokracujeme na zpetny pruzkum
         status = rekurzivni_zpetny_pruzkum(graf, v, w, B)
         # Cyklus nalezen, odpovida 2. kroku a)
-        if status == 1:
+        if status == Status.Cyklus_nalezen:
             return True
         # Zpetny pruzkum prosel mene nez delta hran a zaroven plati k(w) < k(v), odpovida 2. kroku c)
-        elif status == 0 and graf.k[w] < graf.k[v]:
+        elif status == Status.Mene_nez_delta_hran and graf.k[w] < graf.k[v]:
             graf.k[w] = graf.k[v]
             graf.e_in[w] = set()
             dopredny = True
         # Zpetny pruzkum prosel alespon delta hran, odpovida 2. kroku d)
-        elif status == 2:
+        elif status == Status.Vice_nez_delta_hran:
             graf.k[w] = graf.k[v] + 1
             graf.e_in[w] = set()
             B = {v}
@@ -105,27 +113,26 @@ def rekurzivni_zpetny_pruzkum(graf, start, w, B):
                     1 - narazil na vrchol w, oznamujeme tedy vznik cyklu
                     2 - prosel vice nez delta hran
     """
-    # TODO: Zeptat se, zda raději neházet exception!!
     if start == w:
-        return 1
+        return Status.Cyklus_nalezen
     B.add(start)
     for naslednik in graf.e_in[start]:
-        # Bylo prozkoumano vice nez delta hran, '+ 1' je zde kvuli skutecnosti, ze hran mezi vrcholy je vzdy o 1 mene
-        # nez vrcholu a do mnoziny B ukladame z praktickych duvodu vrcholy a ne hrany
+        # Bylo prozkoumano vice nez delta hran, '+ 1' je zde kvuli skutecnosti, ze hran mezi vrcholy na ceste je vzdy
+        # o 1 mene nez vrcholu a do mnoziny B ukladame z praktickych duvodu vrcholy a ne hrany
         if len(B) >= graf.delta + 1:
-            return 2
+            return Status.Vice_nez_delta_hran
         # Preskoci opetovny pruzkum jiz prozkoumanych vrcholu
         if naslednik in B:
             continue
         status = rekurzivni_zpetny_pruzkum(graf, naslednik, w, B)
         # Rekurzivni volani zpetneho pruzkumu narazilo na vrchol w
-        if status == 1:
-            return 1
+        if status == Status.Cyklus_nalezen:
+            return Status.Cyklus_nalezen
         # Bylo prozkoumano vice nez delta hran
-        elif status == 2:
-            return 2
+        elif status == Status.Vice_nez_delta_hran:
+            return Status.Vice_nez_delta_hran
 
-    return 0
+    return Status.Mene_nez_delta_hran
 
 
 def iterativni_dopredny_pruzkum(graf, w, B):
