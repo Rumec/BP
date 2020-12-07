@@ -77,7 +77,7 @@ def vloz_hranu(graf, hrana):
             B = {v}
             dopredny = True
         # Dopredny pruzkum, odpovida 3. kroku
-        if dopredny and iterativni_dopredny_pruzkum(graf, w, B):
+        if dopredny and dopredny_pruzkum(graf, w, B):
             return True
     # Cyklus nebyl nalezen, pridavame tedy hranu do grafu
     pridani_hrany(graf, v, w)
@@ -115,15 +115,15 @@ def rekurzivni_zpetny_pruzkum(graf, start, w, B):
     if start == w:
         return Status.Cyklus_nalezen
     B.add(start)
-    for naslednik in graf.e_in[start]:
+    for predchudce in graf.e_in[start]:
         # Bylo prozkoumano vice nez delta hran, '+ 1' je zde kvuli skutecnosti, ze hran mezi vrcholy na ceste je vzdy
         # o 1 mene nez vrcholu a do mnoziny B ukladame z praktickych duvodu vrcholy a ne hrany
         if len(B) >= graf.delta + 1:
             return Status.Vice_nez_delta_hran
         # Preskoci opetovny pruzkum jiz prozkoumanych vrcholu
-        if naslednik in B:
+        if predchudce in B:
             continue
-        status = rekurzivni_zpetny_pruzkum(graf, naslednik, w, B)
+        status = rekurzivni_zpetny_pruzkum(graf, predchudce, w, B)
         # Rekurzivni volani zpetneho pruzkumu narazilo na vrchol w
         if status == Status.Cyklus_nalezen:
             return Status.Cyklus_nalezen
@@ -134,7 +134,7 @@ def rekurzivni_zpetny_pruzkum(graf, start, w, B):
     return Status.Mene_nez_delta_hran
 
 
-def iterativni_dopredny_pruzkum(graf, w, B):
+def dopredny_pruzkum(graf, w, B):
     """
     Dopredny pruzkum prochazi vystupni hrany vrcholu x (tedy hrany obsazene v out(x), dle zavedene terminologie bakalarske
     prace), jehoz uroven k(x) byla behem dopredneho pruzkumu zvysena. Pri doprednem pruzkumu dochazi k pripadnym opravam
@@ -150,16 +150,16 @@ def iterativni_dopredny_pruzkum(graf, w, B):
     while F:
         a = F.pop()
         # Pruzkum nasledniku aktualne prozkoumavaneho vrcholu
-        for b in graf.e_out[a]:
-            if b in B:
+        for naslednik in graf.e_out[a]:
+            if naslednik in B:
                 return True
             # Nasledujici if predstavuje pripadnou opravu pseudotopologickeho usporadani
-            if graf.k[a] == graf.k[b]:
-                graf.e_in[b].add(a)
-            elif graf.k[a] > graf.k[b]:
-                graf.k[b] = graf.k[a]
-                graf.e_in[b] = {a}
-                F.add(b)
+            if graf.k[a] == graf.k[naslednik]:
+                graf.e_in[naslednik].add(a)
+            elif graf.k[a] > graf.k[naslednik]:
+                graf.k[naslednik] = graf.k[a]
+                graf.e_in[naslednik] = {a}
+                F.add(naslednik)
     return False
 
 
