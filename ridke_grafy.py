@@ -148,17 +148,17 @@ def dopredny_pruzkum(graf, w, B):
     """
     F = {w}     # Mnozina vrcholu urcenych k doprednemu pruzkumu
     while F:
-        a = F.pop()
+        aktualni = F.pop()
         # Pruzkum nasledniku aktualne prozkoumavaneho vrcholu
-        for naslednik in graf.e_out[a]:
+        for naslednik in graf.e_out[aktualni]:
             if naslednik in B:
                 return True
             # Nasledujici if predstavuje pripadnou opravu pseudotopologickeho usporadani
-            if graf.k[a] == graf.k[naslednik]:
-                graf.e_in[naslednik].add(a)
-            elif graf.k[a] > graf.k[naslednik]:
-                graf.k[naslednik] = graf.k[a]
-                graf.e_in[naslednik] = {a}
+            if graf.k[aktualni] == graf.k[naslednik]:
+                graf.e_in[naslednik].add(aktualni)
+            elif graf.k[aktualni] > graf.k[naslednik]:
+                graf.k[naslednik] = graf.k[aktualni]
+                graf.e_in[naslednik] = {aktualni}
                 F.add(naslednik)
     return False
 
