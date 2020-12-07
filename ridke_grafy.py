@@ -40,6 +40,9 @@ class Graf:
 
 
 class Status(enum.Enum):
+    """
+    Vycet slouzici k jednoznacnemu urceni situace, jez nastana pri zpetnem pruzkumu.
+    """
     Mene_nez_delta_hran = 0
     Cyklus_nalezen = 1
     Vice_nez_delta_hran = 2
