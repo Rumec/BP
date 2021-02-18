@@ -1,14 +1,22 @@
 import React from "react";
 import Graph from "react-graph-vis";
+import DFS from "./DFS";
 
 const RADIUS = 200;
 
 class NetworkGraph extends React.Component {
     constructor(props) {
         super(props);
-        this.followerList = {};
         this.visited = [];
         this.state = {
+            timeoutInput: 500,
+            timeout: 500,
+            followerList: {},
+
+            e_in: {}, // list in incoming edges
+            m: 0, // total number of edges in graph
+            delta: 0,
+
             inProgress: false,
             visited: [],
             addingEdge: false,
@@ -22,10 +30,12 @@ class NetworkGraph extends React.Component {
         this.generateGraph = this.generateGraph.bind(this);
         this.addEdge = this.addEdge.bind(this);
         this.changeVertex = this.changeVertex.bind(this);
-        this.dfs = this.dfs.bind(this);
-        this.dfsRecursive = this.dfsRecursive.bind(this);
         this.colorEdgeToRed = this.colorEdgeToRed.bind(this);
         this.colorGraphToDefault = this.colorGraphToDefault.bind(this);
+        this.changeProgress = this.changeProgress.bind(this);
+        this.addVisitedVertex = this.addVisitedVertex.bind(this);
+        this.clearVisitedVertices = this.clearVisitedVertices.bind(this);
+        this.setTimeoutFromInput = this.setTimeoutFromInput.bind(this);
     }
 
     handleChange(event) {
@@ -41,14 +51,15 @@ class NetworkGraph extends React.Component {
     }
 
     /**
-     * Generates new graph
+     * Generates new graph, sets levels of all vertices to 1
      *
      * @returns {Promise<void>}
      */
     async generateGraph() {
         let actualAngle = 0;
         let nodesArr = [];
-        //console.log(this.state.numberOfVertices);
+        let followerList = {};
+        let e_in = {};
         for (let i = 1; i <= this.state.numberOfVertices; ++i) {
             nodesArr.push({
                 id: i,
@@ -59,12 +70,12 @@ class NetworkGraph extends React.Component {
                 x: RADIUS * Math.sin(actualAngle),
                 y: RADIUS * Math.cos(actualAngle)
             });
-
-            this.followerList[i] = [];
-
+            followerList[i] = [];
+            e_in[i] = []; // initializing list of incoming edges
             actualAngle += (2 * Math.PI) / (this.state.numberOfVertices);
         }
         await this.setState({
+            followerList: followerList,
             nodes: nodesArr,
             edges: []
         });
@@ -76,24 +87,29 @@ class NetworkGraph extends React.Component {
      * @returns {Promise<void>}
      */
     async addEdge() {
-        if (this.state.from === this.state.to) {
+        const from = parseInt(this.state.from);
+        const to = parseInt(this.state.to);
+
+        if (to === from) {
             window.alert("Cannot create loop");
-        } else if (this.state.edges.some(edge => edge.from === this.state.from && edge.to === this.state.to)) {
+        } else if (this.state.edges.some(edge => edge.from === from && edge.to === to)) {
             window.alert("Edge already exists!");
-        }else if (this.state.from > this.state.numberOfVertices || this.state.to > this.state.numberOfVertices ||
-            this.state.from < 1 || this.state.to < 1 ){
-            window.alert("Chosen vertices do not exist in the graph!");
+        } else if (from > this.state.numberOfVertices || to > this.state.numberOfVertices ||
+            from < 1 || to < 1) {
+            await window.alert("Chosen vertices do not exist in the graph!");
         } else {
             const oldEdges = await this.state.edges.slice();
             await oldEdges.push({
-                from: parseInt(this.state.from),
-                to: parseInt(this.state.to),
+                from: from,
+                to: to,
                 color: "black",
                 width: 3
             });
 
-            await this.followerList[parseInt(this.state.from)].push(parseInt(this.state.to));
+            const oldFollowerList = await this.state.followerList;
+            await oldFollowerList[from].push(to);
             await this.setState({
+                followerList: oldFollowerList,
                 edges: oldEdges,
                 from: 0,
                 to: 0
@@ -148,7 +164,6 @@ class NetworkGraph extends React.Component {
      * @returns {Promise<void>}
      */
     async changeVertex(id, color, levelIncrease) {
-        await console.log(this.state.nodes);
         await this.setState(prevState => {
             prevState.nodes = prevState.nodes.map(node => {
                 if (node.id === id) {
@@ -168,31 +183,24 @@ class NetworkGraph extends React.Component {
         })
     }
 
-    async dfsRecursive(vertex) {
-        await this.visited.push(vertex);
-
-        await this.changeVertex(vertex, "green", 1);
-
-        for (let i = 0; i < this.followerList[vertex].length; ++i) {
-            //console.log("this.followerList[vertex][i]: ", this.followerList[vertex][i]);
-            if (!this.visited.includes(this.followerList[vertex][i])) {
-                await this.colorEdgeToRed(vertex, this.followerList[vertex][i]);
-                await this.sleepNow(500);
-                await this.dfsRecursive(this.followerList[vertex][i]);
-            }
-        }
+    changeProgress() {
+        this.setState(prevState => {
+            return {
+                inProgress: !prevState.inProgress
+            };
+        })
     }
 
-    async dfs() {
-        this.setState({
-            inProgress: true
+    async addVisitedVertex(vertex) {
+        await this.setState(prevState => {
+            prevState.visited.push(vertex);
+            return prevState;
         })
-        await this.dfsRecursive(1);
-        await this.sleepNow(1000);
-        await this.colorGraphToDefault();
-        this.visited = [];
-        this.setState({
-            inProgress: false
+    }
+
+    async clearVisitedVertices() {
+        await this.setState({
+            visited: []
         })
     }
 
@@ -266,6 +274,12 @@ class NetworkGraph extends React.Component {
         })
     }
 
+    setTimeoutFromInput() {
+        this.setState({
+            timeout: this.state.timeoutInput
+        })
+    }
+
     render() {
         const graph = {nodes: this.state.nodes, edges: this.state.edges};
 
@@ -300,7 +314,6 @@ class NetworkGraph extends React.Component {
                     options={options}
                     events={events}
                 />
-                <p>{this.state.numberOfVertices}</p>
                 <input
                     name={"numberOfVertices"}
                     type={"number"}
@@ -308,7 +321,8 @@ class NetworkGraph extends React.Component {
                     onChange={this.handleChange}
                 />
                 <button
-                    onClick={(!this.state.inProgress)? this.generateGraph : () => {}}
+                    onClick={(!this.state.inProgress) ? this.generateGraph : () => {
+                    }}
                 >
                     Generuj graf
                 </button>
@@ -336,7 +350,8 @@ class NetworkGraph extends React.Component {
                 </label>
 
                 <button
-                    onClick={(!this.state.inProgress)? this.addEdge : () => {}}
+                    onClick={(!this.state.inProgress) ? this.addEdge : () => {
+                    }}
                 >
                     Add edge
                 </button>
@@ -345,23 +360,44 @@ class NetworkGraph extends React.Component {
 
                 <button
                     name={"addingEdge"}
-                    onClick={(!this.state.inProgress)? this.handleChange : () => {}}
+                    onClick={(!this.state.inProgress) ? this.handleChange : () => {
+                    }}
                 >
                     Add edge with mouse
                 </button>
                 {this.DisplayAddingStatus()}
-                {this.state.addingEdge ? "true" : "false"}
-                <p>from: {this.state.from}, to: {this.state.to}</p>
 
+                <label>
+                    <input
+                        name={"timeoutInput"}
+                        type={"number"}
+                        value={this.state.timeoutInput}
+                        onChange={this.handleChange}
+                    />
+                    Timeout
+                </label>
                 <button
-                    onClick={(!this.state.inProgress)? this.dfs : () => {}}
-                >DFS starting in 1
+                    onClick={this.setTimeoutFromInput}
+                >
+                    Set timeout
                 </button>
+                <br/>
+                <DFS
+                    state={this.state}
+                    changeProgress={this.changeProgress}
+                    colorGraphToDefault={this.colorGraphToDefault}
+                    sleepNow={this.sleepNow}
+                    visited={this.visited}
+                    colorEdgeToRed={this.colorEdgeToRed}
+                    changeVertex={this.changeVertex}
+                    addVisitedVertices={this.addVisitedVertex}
+                    clearVisitedVertices={this.clearVisitedVertices}
+                />
+
             </div>
 
         )
     }
 }
-
 
 export default NetworkGraph;
