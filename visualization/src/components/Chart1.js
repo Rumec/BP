@@ -1,6 +1,7 @@
 import React from "react";
 import Graph from "react-graph-vis";
-import DFS from "./DFS";
+//import DFS from "./DFS";
+import SparseGraph from "./SparseGraph";
 
 const RADIUS = 200;
 
@@ -8,12 +9,18 @@ class NetworkGraph extends React.Component {
     constructor(props) {
         super(props);
         this.visited = [];
+        this.status = {
+            LESS_THAN_DELTA_EDGES: 0,
+            CYCLE_FOUND: 1,
+            MORE_THAN_DELTA_EDGES: 2
+        }
+
         this.state = {
             timeoutInput: 500,
             timeout: 500,
             followerList: {},
 
-            e_in: {}, // list in incoming edges
+            e_in: {}, // JSON of lists in incoming edges
             m: 0, // total number of edges in graph
             delta: 0,
 
@@ -36,11 +43,52 @@ class NetworkGraph extends React.Component {
         this.addVisitedVertex = this.addVisitedVertex.bind(this);
         this.clearVisitedVertices = this.clearVisitedVertices.bind(this);
         this.setTimeoutFromInput = this.setTimeoutFromInput.bind(this);
+        this.addVertexToEin = this.addVertexToEin.bind(this);
+        this.incrementM = this.incrementM.bind(this);
+        this.setEinOfVertex = this.setEinOfVertex.bind(this);
+        this.setDelta = this.setDelta.bind(this);
+    }
+
+    async setDelta(value) {
+        await this.setState({
+            delta: value
+        })
+    }
+
+    async incrementM() {
+        await this.setState(async prevState => {
+            const newM = prevState.m + 1;
+            return {
+                m: newM
+            }
+        })
+        //await console.log("m changed to:", this.state.m);
+    }
+
+    async addVertexToEin(successor, predecessor) {
+        await this.setState(async prevState => {
+            await prevState.e_in[successor].push(predecessor);
+            return prevState;
+        })
+    }
+
+    async setEinOfVertex(vertex, toBeSet) {
+        await this.setState(async prevState => {
+            prevState.e_in[vertex] = await toBeSet;
+            return prevState;
+        })
     }
 
     handleChange(event) {
         const {name, type, value, checked} = event.target;
 
+        //if (name === "from" || name === "to") {
+        this.setState({
+            [name]: parseInt(value)
+        })
+        //}
+
+        /*
         (type === "checkbox") ? this.setState({[name]: checked})
             : (name === "addingEdge") ? this.setState(prevState => {
                 return {
@@ -48,6 +96,8 @@ class NetworkGraph extends React.Component {
                 }
             })
             : this.setState({[name]: value});
+
+         */
     }
 
     /**
@@ -61,7 +111,7 @@ class NetworkGraph extends React.Component {
         let followerList = {};
         let e_in = {};
         for (let i = 1; i <= this.state.numberOfVertices; ++i) {
-            nodesArr.push({
+            await nodesArr.push({
                 id: i,
                 level: 1,
                 label: i.toString() + ", 1",
@@ -72,13 +122,15 @@ class NetworkGraph extends React.Component {
             });
             followerList[i] = [];
             e_in[i] = []; // initializing list of incoming edges
-            actualAngle += (2 * Math.PI) / (this.state.numberOfVertices);
+            actualAngle += await (2 * Math.PI) / (this.state.numberOfVertices);
         }
         await this.setState({
             followerList: followerList,
+            e_in: e_in,
             nodes: nodesArr,
             edges: []
         });
+        //console.log(this.state.nodes);
     }
 
     /**
@@ -111,10 +163,10 @@ class NetworkGraph extends React.Component {
             await this.setState({
                 followerList: oldFollowerList,
                 edges: oldEdges,
-                from: 0,
-                to: 0
+
             });
         }
+        //await console.log(this.state.edges);
     }
 
     DisplayAddingStatus() {
@@ -145,7 +197,7 @@ class NetworkGraph extends React.Component {
                 to: nodes[0],
                 addingEdge: false
             });
-            await this.addEdge();
+            //await this.addEdge();
         }
         await this.setState({
             from: nodes[0]
@@ -280,6 +332,182 @@ class NetworkGraph extends React.Component {
         })
     }
 
+
+    /**************************/
+
+    async insertEdge() {
+        let forward = false;
+        let actualStatus;
+
+        /**
+         * TODO: zkulturnit
+         */
+        let fromVertex,
+            toVertex;
+        for (let i = 0; i < this.state.nodes.length; ++i) {
+            if (this.state.nodes[i].id === this.state.from) {
+                fromVertex = await this.state.nodes[i];
+            } else if (this.state.nodes[i].id === this.state.to) {
+                toVertex = await this.state.nodes[i];
+            }
+        }
+
+        await console.log("fromVertex:", fromVertex, "toVertex:", toVertex);
+
+        if (!(await this.testOrdering(this.state.from, this.state.to))) {
+            actualStatus = await this.backwardSearch(fromVertex.id, toVertex.id);
+            console.log("actual status:", actualStatus);
+            if (actualStatus === this.status.CYCLE_FOUND) {
+                return true;
+            } else if (actualStatus === this.status.LESS_THAN_DELTA_EDGES && (toVertex.level < fromVertex.level)) {
+
+                await this.changeVertex(toVertex.id, toVertex.color, (fromVertex.level - toVertex.level));
+                await this.setEinOfVertex(toVertex.id, []);
+                forward = true;
+            } else if (actualStatus === this.status.MORE_THAN_DELTA_EDGES) {
+
+                await this.changeVertex(toVertex.id, toVertex.color, ((fromVertex.level - toVertex.level) + 1));
+                await console.log(this.state.nodes);
+                await this.setEinOfVertex(toVertex.id, []);
+                await this.clearVisitedVertices();
+                await this.addVisitedVertex(fromVertex.id);
+                forward = true;
+            }
+
+
+            if (forward) {
+                actualStatus = (await this.forwardSearch(this.state.to));
+                if (actualStatus) {
+                    return true;
+                }
+            }
+        }
+
+        await console.log("visited", this.state.visited);
+
+        await this.addingEdge(fromVertex.id, toVertex.id);
+        await this.clearVisitedVertices();
+        return false;
+    }
+
+    async testOrdering(from, to) {
+        /**
+         * TODO: zkulturnit!!!
+         */
+        let fromLevel,
+            toLevel;
+        for (let i = 0; i < this.state.nodes.length; ++i) {
+            if (this.state.nodes[i].id === from) {
+                fromLevel = await this.state.nodes[i].level;
+            } else if (this.state.nodes[i].id === to) {
+                toLevel = await this.state.nodes[i].level;
+            }
+        }
+        return (fromLevel < toLevel);
+    }
+
+    async backwardSearch(start, w) {
+
+        if (start === w) {
+            return this.status.CYCLE_FOUND;
+        }
+        await this.addVisitedVertex(start);
+
+        for (let i = 0; i < this.state.e_in[start].length; ++i) {
+            let predecessor = await this.state.e_in[start][i];
+
+            if (this.state.visited.length >= this.state.delta + 1) {
+                return this.status.MORE_THAN_DELTA_EDGES;
+            }
+
+            if (this.state.visited.includes(predecessor)) {
+                continue;
+            }
+
+            let actualStatus = await this.backwardSearch(predecessor, w);
+
+            if (actualStatus === this.status.CYCLE_FOUND || actualStatus === this.status.MORE_THAN_DELTA_EDGES) {
+                return actualStatus;
+            }
+        }
+        return this.status.LESS_THAN_DELTA_EDGES;
+    }
+
+    async forwardSearch(w) {
+        // Simulation of set (JS set is not very smart)
+        let F = [w];
+
+        while (F.length) {
+            let actual = await F.pop();
+
+            /**
+             * zkulturnit!!
+             */
+            for (let i = 0; i < this.state.nodes.length; ++i) {
+                if (this.state.nodes[i].id === actual) {
+                    actual = await this.state.nodes[i];
+                }
+            }
+
+            for (let i = 0; i < this.state.followerList[actual.id].length; ++i) {
+
+                let successor = await this.state.followerList[actual.id][i];
+
+
+                /**
+                 * zkulturnit!!
+                 */
+                for (let i = 0; i < this.state.nodes.length; ++i) {
+                    if (this.state.nodes[i].id === successor) {
+                        successor = await this.state.nodes[i];
+                    }
+                }
+
+                if (this.state.visited.includes(successor.id)) {
+                    return true;
+                }
+
+                if (actual.level === successor.level) {
+                    await this.addVertexToEin(successor, actual);
+                } else if (actual.level > successor.level) {
+                    await this.changeVertex(successor.id, successor.color, (actual.level - successor.level));
+                    await this.setEinOfVertex(successor.id, [actual.id]);
+                    await F.push(successor.id);
+                }
+            }
+        }
+        return false;
+    }
+
+    async addingEdge(from, to) {
+
+        for (let i = 0; i < this.state.nodes.length; ++i) {
+            if (this.state.nodes[i].id === from) {
+                from = await this.state.nodes[i];
+            } else if (this.state.nodes[i].id === to) {
+                to = await this.state.nodes[i];
+            }
+        }
+
+        await this.addEdge();
+        await console.log(this.state.edges);
+
+        if (from.level === to.level) {
+            await this.addVertexToEin(to.id, from.id);
+        }
+        await this.setDelta(await Math.min(await Math.sqrt(this.state.edges.length),
+            await Math.pow(this.state.nodes.length, (2 / 3))));
+    }
+
+    async mainProcedure() {
+        if (await this.insertEdge()) {
+            await console.log("cycle");
+            await window.alert("Cycle detected!");
+        }
+    }
+
+    /**************************/
+
     render() {
         const graph = {nodes: this.state.nodes, edges: this.state.edges};
 
@@ -329,44 +557,45 @@ class NetworkGraph extends React.Component {
 
                 <br/>
 
-                <label>
-                    <input
-                        name={"from"}
-                        type={"number"}
-                        value={this.state.from}
-                        onChange={this.handleChange}
-                    />
-                    from
-                </label>
-
-                <label>
-                    <input
-                        name={"to"}
-                        type={"number"}
-                        value={this.state.to}
-                        onChange={this.handleChange}
-                    />
-                    to
-                </label>
-
-                <button
-                    onClick={(!this.state.inProgress) ? this.addEdge : () => {
-                    }}
-                >
-                    Add edge
-                </button>
 
                 <p>adding edge from {this.state.from} to {this.state.to}</p>
 
-                <button
-                    name={"addingEdge"}
-                    onClick={(!this.state.inProgress) ? this.handleChange : () => {
-                    }}
-                >
-                    Add edge with mouse
-                </button>
-                {this.DisplayAddingStatus()}
 
+                <br/>
+
+                <div>
+                    <label>
+                        <input
+                            name={"from"}
+                            type={"number"}
+                            value={this.state.from}
+                            onChange={this.handleChange}
+                        />
+                        from
+                    </label>
+
+                    <label>
+                        <input
+                            name={"to"}
+                            type={"number"}
+                            value={this.state.to}
+                            onChange={this.handleChange}
+                        />
+                        to
+                    </label>
+
+                    <button
+                        onClick={() => {
+                            this.mainProcedure();
+                        }}
+                    >
+                        Add edge
+                    </button>
+                </div>
+
+
+                <br/>
+                <br/>
                 <label>
                     <input
                         name={"timeoutInput"}
@@ -381,7 +610,21 @@ class NetworkGraph extends React.Component {
                 >
                     Set timeout
                 </button>
+
                 <br/>
+                <p>from: {this.state.from}, to: {this.state.to}</p>
+
+
+            </div>
+
+        )
+    }
+}
+
+export default NetworkGraph;
+
+
+/*
                 <DFS
                     state={this.state}
                     changeProgress={this.changeProgress}
@@ -394,10 +637,47 @@ class NetworkGraph extends React.Component {
                     clearVisitedVertices={this.clearVisitedVertices}
                 />
 
-            </div>
+                <button
+                    name={"addingEdge"}
+                    onClick={(!this.state.inProgress) ? this.handleChange : () => {
+                    }}
+                >
+                    Add edge with mouse
+                </button>
 
-        )
-    }
-}
+                {this.DisplayAddingStatus()}
 
-export default NetworkGraph;
+                <button
+                    name={"addingEdge"}
+                    onClick={(!this.state.inProgress) ? this.handleChange : () => {
+                    }}
+                >
+                    Add edge with mouse
+                </button>
+
+                 <button
+                    onClick={(!this.state.inProgress) ? this.addEdge : () => {
+                    }}
+                >
+                    Add edge
+                </button>
+
+
+
+                <SparseGraph
+                    state={this.state}
+                    sleepNow={this.sleepNow}
+                    handleChange={this.handleChange}
+                    colorGraphToDefault={this.colorGraphToDefault}
+                    colorEdgeToRed={this.colorEdgeToRed}
+                    changeProgress={this.changeProgress}
+                    changeVertex={this.changeVertex}
+                    addVisitedVertex={this.addVisitedVertex}
+                    clearVisitedVertices={this.clearVisitedVertices}
+                    addVertexToEin={this.addVertexToEin}
+                    setEinOfVertex={this.setEinOfVertex}
+                    addEdge={this.addEdge}
+                    incrementM={this.incrementM}
+                    setDelta={this.setDelta}
+                />
+ */
