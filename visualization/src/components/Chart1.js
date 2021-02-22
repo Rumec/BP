@@ -43,37 +43,44 @@ class NetworkGraph extends React.Component {
         this.clearVisitedVertices = this.clearVisitedVertices.bind(this);
         this.setTimeoutFromInput = this.setTimeoutFromInput.bind(this);
         this.addVertexToEin = this.addVertexToEin.bind(this);
-        this.incrementM = this.incrementM.bind(this);
         this.setEinOfVertex = this.setEinOfVertex.bind(this);
         this.setDelta = this.setDelta.bind(this);
     }
 
+    /**
+     * Sets new value of delta
+     *
+     * @param value - New value to be set
+     * @returns {Promise<void>}
+     */
     async setDelta(value) {
         await this.setState({
             delta: value
         })
     }
 
-    async incrementM() {
-        await this.setState(async prevState => {
-            const newM = prevState.m + 1;
-            return {
-                m: newM
-            }
-        })
-        //await console.log("m changed to:", this.state.m);
-    }
-
+    /**
+     * Adds a vertex to the e_in set
+     *
+     * @param successor - Vertex which e_in should be expanded
+     * @param predecessor - Vertex to be added
+     * @returns {Promise<void>}
+     */
     async addVertexToEin(successor, predecessor) {
-        await this.setState(async prevState => {
-            await console.log({successor, predecessor});
-            await console.log({prevEin: prevState.e_in});
-            await prevState.e_in[successor].push(predecessor);
-            await console.log({postEin: prevState.e_in});
-            return prevState;
-        })
+        const oldEin = await this.state.e_in;
+        await oldEin[successor].push(predecessor);
+        await this.setState({
+            e_in: oldEin,
+        });
     }
 
+    /**
+     * Sets the set of incoming edges to be the value given as parameter
+     *
+     * @param vertex - ID of vertex which e_in should be changed
+     * @param toBeSet - New value of e_in
+     * @returns {Promise<void>}
+     */
     async setEinOfVertex(vertex, toBeSet) {
         await this.setState(async prevState => {
             prevState.e_in[vertex] = await toBeSet;
@@ -81,6 +88,11 @@ class NetworkGraph extends React.Component {
         })
     }
 
+    /**
+     * Handles changes of the controllers
+     *
+     * @param event - Object returned by event
+     */
     handleChange(event) {
         const {name, type, value, checked} = event.target;
 
@@ -145,14 +157,6 @@ class NetworkGraph extends React.Component {
         const from = parseInt(this.state.from);
         const to = parseInt(this.state.to);
 
-        /*if (to === from) {
-            window.alert("Cannot create loop");
-        } else if (this.state.edges.some(edge => edge.from === from && edge.to === to)) {
-            window.alert("Edge already exists!");
-        } else if (from > this.state.numberOfVertices || to > this.state.numberOfVertices ||
-            from < 1 || to < 1) {
-            await window.alert("Chosen vertices do not exist in the graph!");
-        } else {*/
         const oldEdges = await this.state.edges.slice();
         await oldEdges.push({
             from: from,
@@ -166,10 +170,7 @@ class NetworkGraph extends React.Component {
         await this.setState({
             followerList: oldFollowerList,
             edges: oldEdges,
-
         });
-        //}
-        //await console.log(this.state.edges);
     }
 
     DisplayAddingStatus() {
@@ -208,14 +209,20 @@ class NetworkGraph extends React.Component {
 
     }
 
-    sleepNow = (delay) => new Promise((resolve) => setTimeout(resolve, delay));
+    /**
+     * Stops program for specified amount of time
+     *
+     * @param sleepTime - Time to sleep
+     * @returns {Promise<unknown>}
+     */
+    sleepNow = (sleepTime) => new Promise((r) => setTimeout(r, sleepTime));
 
     /**
-     * Changing vertex with given id to specified attributes
+     * Changing parameters of vertex with given id to specified attributes
      *
-     * @param id
-     * @param color
-     * @param levelIncrease
+     * @param id - ID of the node to be changed
+     * @param color - Color to be set
+     * @param levelIncrease - Value by which nodes level should be increased
      * @returns {Promise<void>}
      */
     async changeVertex(id, color, levelIncrease) {
@@ -238,6 +245,9 @@ class NetworkGraph extends React.Component {
         })
     }
 
+    /**
+     * Changes inProgress flag
+     */
     changeProgress() {
         this.setState(prevState => {
             return {
@@ -246,6 +256,12 @@ class NetworkGraph extends React.Component {
         })
     }
 
+    /**
+     * Adds vertex to set of visited vertices
+     *
+     * @param vertex - ID of vertex to be added
+     * @returns {Promise<void>}
+     */
     async addVisitedVertex(vertex) {
         await this.setState(prevState => {
             prevState.visited.push(vertex);
@@ -253,6 +269,11 @@ class NetworkGraph extends React.Component {
         })
     }
 
+    /**
+     * Clears set of visited vertices
+     *
+     * @returns {Promise<void>}
+     */
     async clearVisitedVertices() {
         await this.setState({
             visited: []
@@ -262,8 +283,9 @@ class NetworkGraph extends React.Component {
     /**
      * Colors given edge to red color (used for animation of searching through edges)
      *
-     * @param from - starting vertex of edge
-     * @param to - ending vertex of edge
+     * @param from - Starting vertex of edge
+     * @param to - Ending vertex of edge
+     * @param color - Color of the edge
      * @returns {Promise<void>}
      */
     async colorEdge(from, to, color) {
@@ -285,7 +307,8 @@ class NetworkGraph extends React.Component {
     }
 
     /**
-     * Colors whole graph to default colors
+     * Colors whole graph back to default colors
+     *
      * @returns {Promise<void>}
      */
     async colorGraphToDefault() {
@@ -294,7 +317,7 @@ class NetworkGraph extends React.Component {
          */
         let oldEdges = await this.state.edges.slice();
         for (let i = 0; i < oldEdges.length; ++i) {
-            let tmpNode = {
+            let tmpEdge = {
                 from: oldEdges[0].from,
                 to: oldEdges[0].to,
                 color: "black",
@@ -302,7 +325,7 @@ class NetworkGraph extends React.Component {
             };
 
             await oldEdges.splice(0, 1);
-            await oldEdges.push(tmpNode);
+            await oldEdges.push(tmpEdge);
         }
 
         await this.setState({
@@ -329,6 +352,9 @@ class NetworkGraph extends React.Component {
         })
     }
 
+    /**
+     * Sets value of pause using value in number input
+     */
     setTimeoutFromInput() {
         this.setState({
             timeout: this.state.timeoutInput
@@ -338,22 +364,18 @@ class NetworkGraph extends React.Component {
 
     /**************************/
 
+    /**
+     * Main procedure of algorithm for sparse graphs
+     *
+     * @returns {Promise<boolean>}
+     */
     async insertEdge() {
         let forward = false;
         let actualStatus;
 
-        /**
-         * TODO: zkulturnit
-         */
-        let fromVertex,
-            toVertex;
-        for (let i = 0; i < this.state.nodes.length; ++i) {
-            if (this.state.nodes[i].id === this.state.from) {
-                fromVertex = await this.state.nodes[i];
-            } else if (this.state.nodes[i].id === this.state.to) {
-                toVertex = await this.state.nodes[i];
-            }
-        }
+        let fromVertex = this.state.nodes[this.state.nodes.findIndex(node => node.id === this.state.from)],
+            toVertex = this.state.nodes[this.state.nodes.findIndex(node => node.id === this.state.to)];
+
         await this.changeVertex(fromVertex.id, "orange", 0);
         await this.changeVertex(toVertex.id, "orange", 0);
 
@@ -390,30 +412,16 @@ class NetworkGraph extends React.Component {
 
         await this.colorGraphToDefault();
 
-        console.log("visited length", this.state.visited.length);
-        console.log("delta:", this.state.delta);
-
         await this.addingEdge(fromVertex.id, toVertex.id);
         await this.clearVisitedVertices();
         return false;
     }
 
     async testOrdering(from, to) {
-        /**
-         * TODO: zkulturnit!!!
-         */
-        let fromLevel,
-            toLevel;
-        for (let i = 0; i < this.state.nodes.length; ++i) {
-            if (this.state.nodes[i].id === from) {
-                fromLevel = await this.state.nodes[i].level;
-            } else if (this.state.nodes[i].id === to) {
-                toLevel = await this.state.nodes[i].level;
-            }
-        }
-        console.log("Testing ordering: fromLevel:", fromLevel, "toLevel:", toLevel);
-        await this.sleepNow(this.state.timeout);
+        let fromLevel = this.state.nodes[this.state.nodes.findIndex(node => node.id === from)].level,
+            toLevel = this.state.nodes[this.state.nodes.findIndex(node => node.id === to)].level;
 
+        await this.sleepNow(this.state.timeout);
         return (fromLevel < toLevel);
     }
 
@@ -436,7 +444,7 @@ class NetworkGraph extends React.Component {
             }
 
             // Coloring backward-searched edges
-            console.log("Searching backwards edge: (", predecessor, ", ", start, ")");
+            //console.log("Searching backwards edge: (", predecessor, ", ", start, ")");
             await this.colorEdge(predecessor, start, "red");
             await this.sleepNow(this.state.timeout);
 
@@ -455,42 +463,24 @@ class NetworkGraph extends React.Component {
 
         while (F.length) {
             let actual = await F.pop();
-
-            /**
-             * zkulturnit!!
-             */
-            for (let i = 0; i < this.state.nodes.length; ++i) {
-                if (this.state.nodes[i].id === actual) {
-                    actual = await this.state.nodes[i];
-                }
-            }
+            actual = this.state.nodes[this.state.nodes.findIndex(node => node.id === actual)];
 
             for (let i = 0; i < this.state.followerList[actual.id].length; ++i) {
 
                 let successor = await this.state.followerList[actual.id][i];
-
-
-                /**
-                 * zkulturnit!!
-                 */
-                for (let i = 0; i < this.state.nodes.length; ++i) {
-                    if (this.state.nodes[i].id === successor) {
-                        successor = await this.state.nodes[i];
-                    }
-                }
+                successor = this.state.nodes[this.state.nodes.findIndex(node => node.id === successor)];
 
                 // Animation
-                console.log("Searching forward edge: (", actual.id, ", ", successor.id, ")");
+                //console.log("Searching forward edge: (", actual.id, ", ", successor.id, ")");
                 await this.colorEdge(actual.id, successor.id, "blue");
                 await this.sleepNow(this.state.timeout);
-
 
                 if (this.state.visited.includes(successor.id)) {
                     return true;
                 }
 
                 if (actual.level === successor.level) {
-                    await this.addVertexToEin(successor, actual);
+                    await this.addVertexToEin(successor.id, actual.id);
                 } else if (actual.level > successor.level) {
                     await this.changeVertex(successor.id, successor.color, (actual.level - successor.level));
                     await this.setEinOfVertex(successor.id, [actual.id]);
@@ -503,16 +493,10 @@ class NetworkGraph extends React.Component {
 
     async addingEdge(from, to) {
 
-        for (let i = 0; i < this.state.nodes.length; ++i) {
-            if (this.state.nodes[i].id === from) {
-                from = await this.state.nodes[i];
-            } else if (this.state.nodes[i].id === to) {
-                to = await this.state.nodes[i];
-            }
-        }
+        from = this.state.nodes[this.state.nodes.findIndex(node => node.id === from)];
+        to = this.state.nodes[this.state.nodes.findIndex(node => node.id === to)];
 
         await this.addEdge();
-        await console.log(this.state.edges);
 
         if (from.level === to.level) {
             await this.addVertexToEin(to.id, from.id);
@@ -536,12 +520,12 @@ class NetworkGraph extends React.Component {
                 from < 1 || to < 1) {
                 await window.alert("Chosen vertices do not exist in the graph!");
             } else if (await this.insertEdge()) {
-                await console.log("cycle");
-                await window.alert("Cycle detected!");
-
                 // Adding edge which creates cycle (green color)
                 await this.addEdge();
                 await this.colorEdge(this.state.from, this.state.to, "green");
+
+                await console.log("cycle");
+                await window.alert("Cycle detected!");
             }
 
             await this.changeProgress();
