@@ -639,11 +639,6 @@ class NetworkGraph extends React.Component {
                 >
                     Set timeout
                 </button>
-
-                <br/>
-                <p>from: {this.state.from}, to: {this.state.to}</p>
-
-
             </div>
 
         )
