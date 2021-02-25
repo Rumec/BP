@@ -1,7 +1,9 @@
 import React from "react";
 import Graph from "react-graph-vis";
+import './graphStyle.css';
+import SparseGraphPseudocode from "./SparseGraphPseudocode";
 //import DFS from "./DFS";
-import SparseGraph from "./SparseGraph";
+//import SparseGraph from "./SparseGraph";
 
 const RADIUS = 200;
 
@@ -16,6 +18,7 @@ class NetworkGraph extends React.Component {
         }
 
         this.state = {
+            mainProcedureStep: 0,
             timeoutInput: 500,
             timeout: 500,
             followerList: {},
@@ -45,6 +48,13 @@ class NetworkGraph extends React.Component {
         this.addVertexToEin = this.addVertexToEin.bind(this);
         this.setEinOfVertex = this.setEinOfVertex.bind(this);
         this.setDelta = this.setDelta.bind(this);
+        this.setMainProcedureStep = this.setMainProcedureStep.bind(this);
+    }
+
+    async setMainProcedureStep(step) {
+        await this.setState({
+            mainProcedureStep: step
+        })
     }
 
     /**
@@ -139,6 +149,7 @@ class NetworkGraph extends React.Component {
             actualAngle += await (2 * Math.PI) / (this.state.numberOfVertices);
         }
         await this.setState({
+            mainProcedureStep: 0,
             followerList: followerList,
             e_in: e_in,
             nodes: nodesArr,
@@ -379,21 +390,45 @@ class NetworkGraph extends React.Component {
         await this.changeVertex(fromVertex.id, "orange", 0);
         await this.changeVertex(toVertex.id, "orange", 0);
 
+        await this.setMainProcedureStep(1);
         await this.sleepNow(this.state.timeout);
 
         await console.log("fromVertex:", fromVertex, "toVertex:", toVertex);
 
         if (!(await this.testOrdering(this.state.from, this.state.to))) {
+
+            await this.setMainProcedureStep(2);
+            await this.sleepNow(this.state.timeout);
+            await this.setMainProcedureStep(3);
+            await this.sleepNow(this.state.timeout);
+
             actualStatus = await this.backwardSearch(fromVertex.id, toVertex.id);
             console.log("actual status:", actualStatus);
             if (actualStatus === this.status.CYCLE_FOUND) {
+
+                await this.setMainProcedureStep(4);
+                await this.sleepNow(this.state.timeout);
+                await this.setMainProcedureStep(5);
+                await this.sleepNow(this.state.timeout);
+                await this.setMainProcedureStep(0);
+
                 return true;
             } else if (actualStatus === this.status.LESS_THAN_DELTA_EDGES && (toVertex.level < fromVertex.level)) {
+
+                await this.setMainProcedureStep(6);
+                await this.sleepNow(this.state.timeout);
+                await this.setMainProcedureStep(7);
+                await this.sleepNow(this.state.timeout);
 
                 await this.changeVertex(toVertex.id, "orange", (fromVertex.level - toVertex.level));
                 await this.setEinOfVertex(toVertex.id, []);
                 forward = true;
             } else if (actualStatus === this.status.MORE_THAN_DELTA_EDGES) {
+
+                await this.setMainProcedureStep(8);
+                await this.sleepNow(this.state.timeout);
+                await this.setMainProcedureStep(9);
+                await this.sleepNow(this.state.timeout);
 
                 await this.changeVertex(toVertex.id, "orange", ((fromVertex.level - toVertex.level) + 1));
                 await this.setEinOfVertex(toVertex.id, []);
@@ -403,8 +438,15 @@ class NetworkGraph extends React.Component {
             }
 
             if (forward) {
+                await this.setMainProcedureStep(10);
+                await this.sleepNow(this.state.timeout);
+
                 actualStatus = (await this.forwardSearch(this.state.to));
                 if (actualStatus) {
+                    await this.setMainProcedureStep(11);
+                    await this.sleepNow(this.state.timeout);
+                    await this.setMainProcedureStep(0);
+
                     return true;
                 }
             }
@@ -412,8 +454,12 @@ class NetworkGraph extends React.Component {
 
         await this.colorGraphToDefault();
 
+        await this.setMainProcedureStep(12);
+        await this.sleepNow(this.state.timeout);
+
         await this.addingEdge(fromVertex.id, toVertex.id);
         await this.clearVisitedVertices();
+        await this.setMainProcedureStep(0);
         return false;
     }
 
@@ -563,12 +609,25 @@ class NetworkGraph extends React.Component {
         };
         return (
             <div>
+                <div
+                    className={"graphLayout"}
+                >
+                    <div
+                        className={"graphBox"}
+                    >
+                        <Graph
+                            graph={graph}
+                            options={options}
+                            events={events}
+                        />
+                    </div>
 
-                <Graph
-                    graph={graph}
-                    options={options}
-                    events={events}
-                />
+                    <div
+                        className={"pseudoCode"}
+                    >
+                        <SparseGraphPseudocode step={this.state.mainProcedureStep}/>
+                    </div>
+                </div>
                 <input
                     name={"numberOfVertices"}
                     type={"number"}

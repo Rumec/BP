@@ -1,0 +1,12 @@
+.graphLayout {
+    display: flex;
+    flex-direction: row;
+}
+
+.graphBox {
+    width: 40%;
+}
+
+.pseudoCode {
+    width: 30%;
+}
