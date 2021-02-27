@@ -3,7 +3,7 @@ import React from "react";
 function SparseGraphPseudocode(props) {
     return (
         <div>
-            <div style={{fontWeight: "bold"}}>VlozeniHrany(Graf, hrana)</div>
+            <div style={{fontWeight: "bold"}}>function VlozeniHrany(Graf, hrana)</div>
             <div style={{textIndent: 15, backgroundColor: (props.step === 1)?"yellow" : "white"}}>{"v, w = hrana"}</div>
             <div style={{textIndent: 15, backgroundColor: (props.step === 1)?"yellow" : "white"}}>{"B = {}"}</div>
             <div style={{textIndent: 15, backgroundColor: (props.step === 1)?"yellow" : "white"}}>{"dopredny = False"}</div>
