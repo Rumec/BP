@@ -1,6 +1,6 @@
 import React from "react";
 
-function SparseGraphSubprocedure(props) {
+function SparseGraphSubprocedurePseudocode(props) {
     switch (props.procedure) {
         case 1: return (
             <div>
@@ -65,6 +65,18 @@ function SparseGraphSubprocedure(props) {
         default: return(<div> </div>)
     }
 
+}
+
+function SparseGraphSubprocedure(props) {
+    return(
+        <div>
+            <h3>Podprocedura:</h3>
+            <SparseGraphSubprocedurePseudocode
+                procedure={props.procedure}
+                step={props.step}
+            />
+        </div>
+    )
 }
 
 export default SparseGraphSubprocedure;
