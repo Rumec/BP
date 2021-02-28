@@ -391,25 +391,43 @@ class NetworkGraph extends React.Component {
         await this.changeValue("mainProcedureStep", 1);
         await this.sleepNow(this.state.timeout);
 
-        await console.log("fromVertex:", fromVertex, "toVertex:", toVertex);
+        // await console.log("fromVertex:", fromVertex, "toVertex:", toVertex);
+        console.log("delta:", this.state.delta);
+
 
         if (!(await this.testOrdering(this.state.from, this.state.to))) {
 
-            actualStatus = await this.backwardSearch(fromVertex.id, toVertex.id);
-            console.log("actual status:", actualStatus);
-            if (actualStatus === this.status.CYCLE_FOUND) {
-                await this.changeValue("mainProcedureStep", 4);
+            /**
+             * Opravit v implementaci a BP!!!
+             */
+            if (this.state.e_in[this.state.from].length !== 0) {
+                await this.changeValue("mainProcedureStep", 3);
                 await this.sleepNow(this.state.timeout);
+
+                actualStatus = await this.backwardSearch(fromVertex.id, toVertex.id);
+            } else {
                 await this.changeValue("mainProcedureStep", 5);
+                await this.sleepNow(this.state.timeout);
+                await this.changeValue("mainProcedureStep", 6);
+                await this.sleepNow(this.state.timeout);
+
+                await this.addVisitedVertex(fromVertex.id);
+                actualStatus = (this.state.delta === 0) ? this.status.MORE_THAN_DELTA_EDGES : this.status.LESS_THAN_DELTA_EDGES;
+            }
+
+            if (actualStatus === this.status.CYCLE_FOUND) {
+                await this.changeValue("mainProcedureStep", 7);
+                await this.sleepNow(this.state.timeout);
+                await this.changeValue("mainProcedureStep", 8);
                 await this.sleepNow(this.state.timeout);
                 await this.changeValue("mainProcedureStep", 0);
 
                 return true;
             } else if (actualStatus === this.status.LESS_THAN_DELTA_EDGES && (toVertex.level < fromVertex.level)) {
 
-                await this.changeValue("mainProcedureStep", 6);
+                await this.changeValue("mainProcedureStep", 9);
                 await this.sleepNow(this.state.timeout);
-                await this.changeValue("mainProcedureStep", 7);
+                await this.changeValue("mainProcedureStep", 10);
                 await this.sleepNow(this.state.timeout);
 
                 await this.changeVertex(toVertex.id, "orange", (fromVertex.level - toVertex.level));
@@ -417,9 +435,9 @@ class NetworkGraph extends React.Component {
                 forward = true;
             } else if (actualStatus === this.status.MORE_THAN_DELTA_EDGES) {
 
-                await this.changeValue("mainProcedureStep", 8);
+                await this.changeValue("mainProcedureStep", 11);
                 await this.sleepNow(this.state.timeout);
-                await this.changeValue("mainProcedureStep", 9);
+                await this.changeValue("mainProcedureStep", 12);
                 await this.sleepNow(this.state.timeout);
 
                 await this.changeVertex(toVertex.id, "orange", ((fromVertex.level - toVertex.level) + 1));
@@ -430,13 +448,13 @@ class NetworkGraph extends React.Component {
             }
 
             if (forward) {
-                await this.changeValue("mainProcedureStep", 10);
+                await this.changeValue("mainProcedureStep", 13);
                 await this.setSubprocedureStep(3, 0);
                 await this.sleepNow(this.state.timeout);
 
                 actualStatus = (await this.forwardSearch(this.state.to));
                 if (actualStatus) {
-                    await this.changeValue("mainProcedureStep", 11);
+                    await this.changeValue("mainProcedureStep", 14);
                     await this.sleepNow(this.state.timeout);
                     await this.changeValue("mainProcedureStep", 0);
 
@@ -447,7 +465,7 @@ class NetworkGraph extends React.Component {
 
         await this.colorGraphToDefault();
 
-        await this.changeValue("mainProcedureStep", 12);
+        await this.changeValue("mainProcedureStep", 15);
         await this.sleepNow(this.state.timeout);
 
         await this.addingEdge(fromVertex.id, toVertex.id);
@@ -471,7 +489,7 @@ class NetworkGraph extends React.Component {
     }
 
     async backwardSearch(start, w) {
-        await this.changeValue("mainProcedureStep", 3);
+        await this.changeValue("mainProcedureStep", 4);
         await this.setSubprocedureStep(2, 0);
         await this.sleepNow(this.state.timeout);
         await this.setSubprocedureStep(2, 1);
@@ -494,7 +512,7 @@ class NetworkGraph extends React.Component {
             await this.setSubprocedureStep(2, 3);
             await this.sleepNow(this.state.timeout);
 
-            if (this.state.visited.length > this.state.delta /* + 1 */) {
+            if (this.state.visited.length >= this.state.delta + 1) {
 
                 await this.setSubprocedureStep(2, 5);
                 await this.sleepNow(this.state.timeout);
@@ -532,7 +550,7 @@ class NetworkGraph extends React.Component {
         await this.setSubprocedureStep(2, 11);
         await this.sleepNow(this.state.timeout);
         await this.setSubprocedureStep(0, 0);
-        return this.status.LESS_THAN_DELTA_EDGES;
+        return (this.state.visited.length >= this.state.delta + 1)? this.status.MORE_THAN_DELTA_EDGES : this.status.LESS_THAN_DELTA_EDGES;
     }
 
     async forwardSearch(w) {
@@ -724,7 +742,7 @@ class NetworkGraph extends React.Component {
                 <br/>
 
 
-                <p>adding edge from {this.state.from} to {this.state.to}</p>
+                <p>Přidávám hranu z {this.state.from} do {this.state.to}</p>
 
 
                 <br/>
@@ -738,7 +756,7 @@ class NetworkGraph extends React.Component {
                             onChange={(!this.state.inProgress) ? this.handleChange : () => {
                             }}
                         />
-                        from
+                        Výchozí vrchol
                     </label>
 
                     <label>
@@ -749,7 +767,7 @@ class NetworkGraph extends React.Component {
                             onChange={(!this.state.inProgress) ? this.handleChange : () => {
                             }}
                         />
-                        to
+                        Cílový vrchol
                     </label>
 
                     <button
@@ -757,7 +775,7 @@ class NetworkGraph extends React.Component {
                             this.mainProcedure();
                         }}
                     >
-                        Add edge
+                        Vlož hranu
                     </button>
                 </div>
 
@@ -771,12 +789,12 @@ class NetworkGraph extends React.Component {
                         value={this.state.timeoutInput}
                         onChange={this.handleChange}
                     />
-                    Timeout
+                    Délka kroku
                 </label>
                 <button
                     onClick={this.setTimeoutFromInput}
                 >
-                    Set timeout
+                    Nastav délku kroku
                 </button>
             </div>
 
