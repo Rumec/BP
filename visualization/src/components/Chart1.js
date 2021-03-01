@@ -400,34 +400,21 @@ class NetworkGraph extends React.Component {
             /**
              * Opravit v implementaci a BP!!!
              */
-            if (this.state.e_in[this.state.from].length !== 0) {
-                await this.changeValue("mainProcedureStep", 3);
-                await this.sleepNow(this.state.timeout);
-
-                actualStatus = await this.backwardSearch(fromVertex.id, toVertex.id);
-            } else {
-                await this.changeValue("mainProcedureStep", 5);
-                await this.sleepNow(this.state.timeout);
-                await this.changeValue("mainProcedureStep", 6);
-                await this.sleepNow(this.state.timeout);
-
-                await this.addVisitedVertex(fromVertex.id);
-                actualStatus = (this.state.delta === 0) ? this.status.MORE_THAN_DELTA_EDGES : this.status.LESS_THAN_DELTA_EDGES;
-            }
+            actualStatus = await this.backwardSearch(fromVertex.id, toVertex.id);
 
             if (actualStatus === this.status.CYCLE_FOUND) {
-                await this.changeValue("mainProcedureStep", 7);
+                await this.changeValue("mainProcedureStep", 4);
                 await this.sleepNow(this.state.timeout);
-                await this.changeValue("mainProcedureStep", 8);
+                await this.changeValue("mainProcedureStep", 5);
                 await this.sleepNow(this.state.timeout);
                 await this.changeValue("mainProcedureStep", 0);
 
                 return true;
             } else if (actualStatus === this.status.LESS_THAN_DELTA_EDGES && (toVertex.level < fromVertex.level)) {
 
-                await this.changeValue("mainProcedureStep", 9);
+                await this.changeValue("mainProcedureStep", 6);
                 await this.sleepNow(this.state.timeout);
-                await this.changeValue("mainProcedureStep", 10);
+                await this.changeValue("mainProcedureStep", 7);
                 await this.sleepNow(this.state.timeout);
 
                 await this.changeVertex(toVertex.id, "orange", (fromVertex.level - toVertex.level));
@@ -435,9 +422,9 @@ class NetworkGraph extends React.Component {
                 forward = true;
             } else if (actualStatus === this.status.MORE_THAN_DELTA_EDGES) {
 
-                await this.changeValue("mainProcedureStep", 11);
+                await this.changeValue("mainProcedureStep", 8);
                 await this.sleepNow(this.state.timeout);
-                await this.changeValue("mainProcedureStep", 12);
+                await this.changeValue("mainProcedureStep", 9);
                 await this.sleepNow(this.state.timeout);
 
                 await this.changeVertex(toVertex.id, "orange", ((fromVertex.level - toVertex.level) + 1));
@@ -448,13 +435,13 @@ class NetworkGraph extends React.Component {
             }
 
             if (forward) {
-                await this.changeValue("mainProcedureStep", 13);
+                await this.changeValue("mainProcedureStep", 10);
                 await this.setSubprocedureStep(3, 0);
                 await this.sleepNow(this.state.timeout);
 
                 actualStatus = (await this.forwardSearch(this.state.to));
                 if (actualStatus) {
-                    await this.changeValue("mainProcedureStep", 14);
+                    await this.changeValue("mainProcedureStep", 11);
                     await this.sleepNow(this.state.timeout);
                     await this.changeValue("mainProcedureStep", 0);
 
@@ -465,7 +452,7 @@ class NetworkGraph extends React.Component {
 
         await this.colorGraphToDefault();
 
-        await this.changeValue("mainProcedureStep", 15);
+        await this.changeValue("mainProcedureStep", 12);
         await this.sleepNow(this.state.timeout);
 
         await this.addingEdge(fromVertex.id, toVertex.id);
@@ -489,7 +476,7 @@ class NetworkGraph extends React.Component {
     }
 
     async backwardSearch(start, w) {
-        await this.changeValue("mainProcedureStep", 4);
+        await this.changeValue("mainProcedureStep", 3);
         await this.setSubprocedureStep(2, 0);
         await this.sleepNow(this.state.timeout);
         await this.setSubprocedureStep(2, 1);
@@ -505,6 +492,17 @@ class NetworkGraph extends React.Component {
         await this.sleepNow(this.state.timeout);
 
         await this.addVisitedVertex(start);
+
+        /**
+         * Opravit v BP a implementaci! Dodělat animaci!
+         */
+        if (this.state.e_in[start].length === 0) {
+            if (this.state.visited.length >= this.state.delta + 1) {
+                return this.status.MORE_THAN_DELTA_EDGES;
+            } else {
+               return this.status.LESS_THAN_DELTA_EDGES;
+            }
+        }
 
         for (let i = 0; i < this.state.e_in[start].length; ++i) {
             let predecessor = await this.state.e_in[start][i];
@@ -550,7 +548,7 @@ class NetworkGraph extends React.Component {
         await this.setSubprocedureStep(2, 11);
         await this.sleepNow(this.state.timeout);
         await this.setSubprocedureStep(0, 0);
-        return (this.state.visited.length >= this.state.delta + 1)? this.status.MORE_THAN_DELTA_EDGES : this.status.LESS_THAN_DELTA_EDGES;
+        return this.status.LESS_THAN_DELTA_EDGES;
     }
 
     async forwardSearch(w) {

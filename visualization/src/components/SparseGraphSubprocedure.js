@@ -26,7 +26,7 @@ function SparseGraphSubprocedurePseudocode(props) {
                 <div style={{textIndent: 45, backgroundColor: (props.step === 10)?"yellow" : "white"}}><a style={{fontWeight: "bold"}}>default: </a>{}<a style={{fontWeight: "bold"}}>continue</a></div>
                 <div style={{textIndent: 30}}><a style={{fontWeight: "bold"}}>end switch</a>{}</div>
                 <div style={{textIndent: 15}}><a style={{fontWeight: "bold"}}>end for</a>{}</div>
-                <div style={{textIndent: 15, backgroundColor: (props.step === 11)?"yellow" : "white"}}><a style={{fontWeight: "bold"}}>return </a>(B.size() &#8805; Graf.delta)? Prekroceno : Neprekroceno</div>
+                <div style={{textIndent: 15, backgroundColor: (props.step === 11)?"yellow" : "white"}}><a style={{fontWeight: "bold"}}>return </a>Neprekroceno</div>
             </div>
         );
         case 3: return (
