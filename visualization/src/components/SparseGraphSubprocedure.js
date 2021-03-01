@@ -15,18 +15,23 @@ function SparseGraphSubprocedurePseudocode(props) {
                 <div style={{textIndent: 30, backgroundColor: (props.step === 2)?"yellow" : "white"}}><a style={{fontWeight: "bold"}}>return</a>{" CyklusNaleezen"}</div>
                 <div style={{textIndent: 15}}><a style={{fontWeight: "bold"}}>end if</a></div>
                 <div style={{textIndent: 15, backgroundColor: (props.step === 3)?"yellow" : "white"}}>B = B &#8746; {"{v}"}</div>
+                <div style={{textIndent: 15, backgroundColor: (props.step === 4)?"yellow" : "white"}}><a style={{fontWeight: "bold"}}>if</a>{" Graf.in(start) = {} && B.size() >= Graf.delta "}<a style={{fontWeight: "bold"}}>then</a></div>
+                <div style={{textIndent: 30, backgroundColor: (props.step === 5)?"yellow" : "white"}}><a style={{fontWeight: "bold"}}>return</a>{" Prekroceno"}</div>
+                <div style={{textIndent: 15, backgroundColor: (props.step === 6)?"yellow" : "white"}}><a style={{fontWeight: "bold"}}>else if</a>{" Graf.in(start) = {} && B.size() < Graf.delta "}<a style={{fontWeight: "bold"}}>then</a></div>
+                <div style={{textIndent: 30, backgroundColor: (props.step === 7)?"yellow" : "white"}}><a style={{fontWeight: "bold"}}>return</a>{" Nerekroceno"}</div>
+                <div style={{textIndent: 15}}><a style={{fontWeight: "bold"}}>end if</a></div>
                 <div style={{textIndent: 15}}><a style={{fontWeight: "bold"}}>foreach</a>{" (predchudce, start)"} &#8712; {"Graf.in(start) "}<a style={{fontWeight: "bold"}}>do</a></div>
-                <div style={{textIndent: 30, backgroundColor: (props.step === 4)?"yellow" : "white"}}><a style={{fontWeight: "bold"}}>if</a> B.size() &#8805; Graf.delta <a style={{fontWeight: "bold"}}>then</a></div>
-                <div style={{textIndent: 45, backgroundColor: (props.step === 5)?"yellow" : "white"}}><a style={{fontWeight: "bold"}}>return</a>{" Prekroceno"}</div>
+                <div style={{textIndent: 30, backgroundColor: (props.step === 8)?"yellow" : "white"}}><a style={{fontWeight: "bold"}}>if</a> B.size() &#8805; Graf.delta <a style={{fontWeight: "bold"}}>then</a></div>
+                <div style={{textIndent: 45, backgroundColor: (props.step === 9)?"yellow" : "white"}}><a style={{fontWeight: "bold"}}>return</a>{" Prekroceno"}</div>
                 <div style={{textIndent: 30, fontWeight: "bold"}}>{"end if"}</div>
-                <div style={{textIndent: 30, backgroundColor: (props.step === 6)?"yellow" : "white"}}>{"status = ZpetnyPruzkum(Graf, predchudce, w, B)"}</div>
-                <div style={{textIndent: 30, backgroundColor: (props.step === 7)?"yellow" : "white"}}><a style={{fontWeight: "bold"}}>switch</a>{" status "}<a style={{fontWeight: "bold"}}>do</a></div>
-                <div style={{textIndent: 45, backgroundColor: (props.step === 8)?"yellow" : "white"}}><a style={{fontWeight: "bold"}}>case: </a>{"CyklusNalezen: "}<a style={{fontWeight: "bold"}}>return</a> CyklusNalezen</div>
-                <div style={{textIndent: 45, backgroundColor: (props.step === 9)?"yellow" : "white"}}><a style={{fontWeight: "bold"}}>case: </a>{"Prekroceno: "}<a style={{fontWeight: "bold"}}>return</a> prekroceno</div>
-                <div style={{textIndent: 45, backgroundColor: (props.step === 10)?"yellow" : "white"}}><a style={{fontWeight: "bold"}}>default: </a>{}<a style={{fontWeight: "bold"}}>continue</a></div>
+                <div style={{textIndent: 30, backgroundColor: (props.step === 10)?"yellow" : "white"}}>{"status = ZpetnyPruzkum(Graf, predchudce, w, B)"}</div>
+                <div style={{textIndent: 30, backgroundColor: (props.step === 11)?"yellow" : "white"}}><a style={{fontWeight: "bold"}}>switch</a>{" status "}<a style={{fontWeight: "bold"}}>do</a></div>
+                <div style={{textIndent: 45, backgroundColor: (props.step === 12)?"yellow" : "white"}}><a style={{fontWeight: "bold"}}>case: </a>{"CyklusNalezen: "}<a style={{fontWeight: "bold"}}>return</a> CyklusNalezen</div>
+                <div style={{textIndent: 45, backgroundColor: (props.step === 13)?"yellow" : "white"}}><a style={{fontWeight: "bold"}}>case: </a>{"Prekroceno: "}<a style={{fontWeight: "bold"}}>return</a> prekroceno</div>
+                <div style={{textIndent: 45, backgroundColor: (props.step === 14)?"yellow" : "white"}}><a style={{fontWeight: "bold"}}>default: </a>{}<a style={{fontWeight: "bold"}}>continue</a></div>
                 <div style={{textIndent: 30}}><a style={{fontWeight: "bold"}}>end switch</a>{}</div>
                 <div style={{textIndent: 15}}><a style={{fontWeight: "bold"}}>end for</a>{}</div>
-                <div style={{textIndent: 15, backgroundColor: (props.step === 11)?"yellow" : "white"}}><a style={{fontWeight: "bold"}}>return </a>Neprekroceno</div>
+                <div style={{textIndent: 15, backgroundColor: (props.step === 15)?"yellow" : "white"}}><a style={{fontWeight: "bold"}}>return </a>Neprekroceno</div>
             </div>
         );
         case 3: return (

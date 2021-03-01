@@ -496,23 +496,31 @@ class NetworkGraph extends React.Component {
         /**
          * Opravit v BP a implementaci! Dodělat animaci!
          */
-        if (this.state.e_in[start].length === 0) {
-            if (this.state.visited.length >= this.state.delta + 1) {
-                return this.status.MORE_THAN_DELTA_EDGES;
-            } else {
-               return this.status.LESS_THAN_DELTA_EDGES;
-            }
+        await this.setSubprocedureStep(2, 4);
+        await this.sleepNow(this.state.timeout);
+        if (this.state.e_in[start].length === 0 && this.state.visited.length >= this.state.delta + 1) {
+            await this.setSubprocedureStep(2, 5);
+            await this.sleepNow(this.state.timeout);
+
+            return this.status.MORE_THAN_DELTA_EDGES;
+        } else if (this.state.e_in[start].length === 0 && this.state.visited.length < this.state.delta + 1) {
+            await this.setSubprocedureStep(2, 6);
+            await this.sleepNow(this.state.timeout);
+            await this.setSubprocedureStep(2, 7);
+            await this.sleepNow(this.state.timeout);
+
+            return this.status.LESS_THAN_DELTA_EDGES;
         }
 
         for (let i = 0; i < this.state.e_in[start].length; ++i) {
             let predecessor = await this.state.e_in[start][i];
 
-            await this.setSubprocedureStep(2, 3);
+            await this.setSubprocedureStep(2, 8);
             await this.sleepNow(this.state.timeout);
 
             if (this.state.visited.length >= this.state.delta + 1) {
 
-                await this.setSubprocedureStep(2, 5);
+                await this.setSubprocedureStep(2, 9);
                 await this.sleepNow(this.state.timeout);
                 await this.setSubprocedureStep(0, 0);
 
@@ -525,27 +533,27 @@ class NetworkGraph extends React.Component {
 
             // Coloring backward-searched edges
             await this.colorEdge(predecessor, start, "red");
-            await this.setSubprocedureStep(2, 6);
+            await this.setSubprocedureStep(2, 10);
             await this.sleepNow(this.state.timeout);
             let actualStatus = await this.backwardSearch(predecessor, w);
 
-            await this.setSubprocedureStep(2, 7);
+            await this.setSubprocedureStep(2, 11);
             await this.sleepNow(this.state.timeout);
             if (actualStatus === this.status.CYCLE_FOUND || actualStatus === this.status.MORE_THAN_DELTA_EDGES) {
                 if (actualStatus === this.status.CYCLE_FOUND) {
-                    await this.setSubprocedureStep(2, 8);
+                    await this.setSubprocedureStep(2, 12);
                     await this.sleepNow(this.state.timeout);
                 } else if (actualStatus === this.status.MORE_THAN_DELTA_EDGES) {
-                    await this.setSubprocedureStep(2, 9);
+                    await this.setSubprocedureStep(2, 13);
                     await this.sleepNow(this.state.timeout);
                 }
                 await this.setSubprocedureStep(0, 0);
                 return actualStatus;
             }
-            await this.setSubprocedureStep(2, 10);
+            await this.setSubprocedureStep(2, 14);
             await this.sleepNow(this.state.timeout);
         }
-        await this.setSubprocedureStep(2, 11);
+        await this.setSubprocedureStep(2, 15);
         await this.sleepNow(this.state.timeout);
         await this.setSubprocedureStep(0, 0);
         return this.status.LESS_THAN_DELTA_EDGES;
