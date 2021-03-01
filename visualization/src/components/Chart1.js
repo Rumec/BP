@@ -102,7 +102,7 @@ class NetworkGraph extends React.Component {
      * @param event - Object returned by event
      */
     handleChange(event) {
-        const {name, type, value, checked} = event.target;
+        const {name, /*type, */ value/*, checked*/} = event.target;
 
         //if (name === "from" || name === "to") {
         this.setState({
@@ -730,8 +730,8 @@ class NetworkGraph extends React.Component {
                             step={this.state.subprocedureStep}
                         />
                     </div>
-
                 </div>
+                <br></br>
                 <div
                     className={"graphLayout"}
                 >
