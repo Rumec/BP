@@ -732,76 +732,85 @@ class NetworkGraph extends React.Component {
                     </div>
 
                 </div>
-                <input
-                    name={"numberOfVertices"}
-                    type={"number"}
-                    value={this.state.numberOfVertices}
-                    onChange={this.handleChange}
-                />
-                <button
-                    onClick={(!this.state.inProgress) ? this.generateGraph : () => {
-                    }}
+                <div
+                    className={"graphLayout"}
                 >
-                    Generuj graf
-                </button>
-
-                <br/>
-
-
-                <p>Přidávám hranu z {this.state.from} do {this.state.to}</p>
-
-
-                <br/>
-
-                <div>
-                    <label>
+                    <div>
                         <input
-                            name={"from"}
+                            name={"numberOfVertices"}
                             type={"number"}
-                            value={this.state.from}
-                            onChange={(!this.state.inProgress) ? this.handleChange : () => {
-                            }}
+                            value={this.state.numberOfVertices}
+                            onChange={this.handleChange}
                         />
-                        Výchozí vrchol
-                    </label>
-
-                    <label>
-                        <input
-                            name={"to"}
-                            type={"number"}
-                            value={this.state.to}
-                            onChange={(!this.state.inProgress) ? this.handleChange : () => {
+                        <button
+                            onClick={(!this.state.inProgress) ? this.generateGraph : () => {
                             }}
-                        />
-                        Cílový vrchol
-                    </label>
+                        >
+                            Generuj graf
+                        </button>
 
-                    <button
-                        onClick={() => {
-                            this.mainProcedure();
-                        }}
-                    >
-                        Vlož hranu
-                    </button>
+                        <br/>
+
+
+                        <p>Přidávám hranu z {this.state.from} do {this.state.to}</p>
+
+
+                        <br/>
+
+                        <div>
+                            <label>
+                                <input
+                                    name={"from"}
+                                    type={"number"}
+                                    value={this.state.from}
+                                    onChange={(!this.state.inProgress) ? this.handleChange : () => {
+                                    }}
+                                />
+                                Výchozí vrchol
+                            </label>
+
+                            <label>
+                                <input
+                                    name={"to"}
+                                    type={"number"}
+                                    value={this.state.to}
+                                    onChange={(!this.state.inProgress) ? this.handleChange : () => {
+                                    }}
+                                />
+                                Cílový vrchol
+                            </label>
+
+                            <button
+                                onClick={() => {
+                                    this.mainProcedure();
+                                }}
+                            >
+                                Vlož hranu
+                            </button>
+                        </div>
+
+
+                        <br/>
+                        <br/>
+                        <label>
+                            <input
+                                name={"timeoutInput"}
+                                type={"number"}
+                                value={this.state.timeoutInput}
+                                onChange={this.handleChange}
+                            />
+                            Délka kroku
+                        </label>
+                        <button
+                            onClick={this.setTimeoutFromInput}
+                        >
+                            Nastav délku kroku
+                        </button>
+                    </div>
+                    <div>
+                        <h2 style={{margin: 40}}>Delta: {this.state.delta}</h2>
+                    </div>
                 </div>
-
-
-                <br/>
-                <br/>
-                <label>
-                    <input
-                        name={"timeoutInput"}
-                        type={"number"}
-                        value={this.state.timeoutInput}
-                        onChange={this.handleChange}
-                    />
-                    Délka kroku
-                </label>
-                <button
-                    onClick={this.setTimeoutFromInput}
-                >
-                    Nastav délku kroku
-                </button>
             </div>
 
         )
