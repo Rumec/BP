@@ -122,8 +122,6 @@ def rekurzivni_zpetny_pruzkum(graf, start, w, B):
     # Osetreni okrajoveho pripadu, kdy se dostaneme do posledniho vrcholu o dane urovni
     if len(graf.e_in[start]) == 0 and len(B) >= graf.delta + 1:
         return Status.Vice_nez_delta_hran
-    elif len(graf.e_in[start]) == 0 and len(B) < graf.delta + 1:
-        return Status.Mene_nez_delta_hran
 
     for predchudce in graf.e_in[start]:
         # Bylo prozkoumano vice nez delta hran, '+ 1' je zde kvuli skutecnosti, ze hran mezi vrcholy na ceste je vzdy

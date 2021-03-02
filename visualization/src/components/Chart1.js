@@ -503,14 +503,14 @@ class NetworkGraph extends React.Component {
             await this.sleepNow(this.state.timeout);
 
             return this.status.MORE_THAN_DELTA_EDGES;
-        } else if (this.state.e_in[start].length === 0 && this.state.visited.length < this.state.delta + 1) {
+        } /*else if (this.state.e_in[start].length === 0 && this.state.visited.length < this.state.delta + 1) {
             await this.setSubprocedureStep(2, 6);
             await this.sleepNow(this.state.timeout);
             await this.setSubprocedureStep(2, 7);
             await this.sleepNow(this.state.timeout);
 
             return this.status.LESS_THAN_DELTA_EDGES;
-        }
+        }*/
 
         for (let i = 0; i < this.state.e_in[start].length; ++i) {
             let predecessor = await this.state.e_in[start][i];
