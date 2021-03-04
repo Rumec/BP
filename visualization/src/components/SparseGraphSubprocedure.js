@@ -15,7 +15,7 @@ function SparseGraphSubprocedurePseudocode(props) {
                 <div style={{textIndent: 30, backgroundColor: (props.step === 2)?"yellow" : "white"}}><a style={{fontWeight: "bold"}}>return</a>{" CyklusNaleezen"}</div>
                 <div style={{textIndent: 15}}><a style={{fontWeight: "bold"}}>end if</a></div>
                 <div style={{textIndent: 15, backgroundColor: (props.step === 3)?"yellow" : "white"}}>B &#8592; B &#8746; {"{v}"}</div>
-                <div style={{textIndent: 15, backgroundColor: (props.step === 4)?"yellow" : "white"}}><a style={{fontWeight: "bold"}}>if</a> Graf.in(start) = {"{}"} && B.size() &#8805; Graf.delta <a style={{fontWeight: "bold"}}>then</a></div>
+                <div style={{textIndent: 15, backgroundColor: (props.step === 4)?"yellow" : "white"}}><a style={{fontWeight: "bold"}}>if</a> Graf.in(start) = &#8709; &#8743; B.size() &#8805; Graf.delta <a style={{fontWeight: "bold"}}>then</a></div>
                 <div style={{textIndent: 30, backgroundColor: (props.step === 5)?"yellow" : "white"}}><a style={{fontWeight: "bold"}}>return</a>{" Prekroceno"}</div>
                 <div style={{textIndent: 15}}><a style={{fontWeight: "bold"}}>end if</a></div>
                 <div style={{textIndent: 15}}><a style={{fontWeight: "bold"}}>foreach</a>{" (predchudce, start)"} &#8712; {"Graf.in(start) "}<a style={{fontWeight: "bold"}}>do</a></div>

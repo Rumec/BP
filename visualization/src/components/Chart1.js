@@ -808,7 +808,7 @@ class NetworkGraph extends React.Component {
                         </button>
                     </div>
                     <div>
-                        <h2 style={{margin: 40}}>Delta: {this.state.delta}</h2>
+                        <h2 style={{margin: 40}}>Delta= {this.state.delta}</h2>
                     </div>
                 </div>
             </div>
