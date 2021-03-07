@@ -18,6 +18,18 @@ class NetworkGraph extends React.Component {
             MORE_THAN_DELTA_EDGES: 2
         }
 
+        // inspired by: https://gist.github.com/mucar/3898821
+        this.color = ['#1AB399', '#F16FF1', '#F91AFF', '#06C6FF', '#4DB3FF',
+            '#E6B333', '#3366E6', '#999966', '#99FF99', '#B34D4D',
+            '#80B300', '#809900', '#E6B3B3', '#6680B3', '#66991A',
+            '#FF99E6', '#CCFF1A', '#FF1A66', '#E6331A', '#33FFCC',
+            '#66994D', '#B366CC', '#4D8000', '#B33300', '#CC80CC',
+            '#E666B3', '#33991A', '#CC9999', '#B3B31A', '#00E680',
+            '#4D8066', '#809980', '#E6FF80', '#1AFF33', '#999933',
+            '#FF3380', '#CCCC00', '#66E64D', '#4D80CC', '#9900B3',
+            '#FF6633', '#FFB399', '#FF33FF', '#FFFF99', '#00B3E6',
+            '#E64D66', '#4DB380', '#FF4D4D', '#99E6E6', '#6666FF'];
+
         this.state = {
             subprocedure: 0,
             subprocedureStep: 0,
@@ -138,7 +150,7 @@ class NetworkGraph extends React.Component {
                 level: 1,
                 label: i.toString() + ", 1",
                 title: i.toString(),
-                color: "#34e1eb",
+                color: this.color[0],
                 x: RADIUS * Math.sin(actualAngle),
                 y: RADIUS * Math.cos(actualAngle)
             });
@@ -351,7 +363,7 @@ class NetworkGraph extends React.Component {
                     level: node.level,
                     label: node.label,
                     title: node.title,
-                    color: "#34e1eb"
+                    color: this.color[node.level - 1]
                 }
                 return node;
             })
@@ -605,7 +617,7 @@ class NetworkGraph extends React.Component {
                     await this.setSubprocedureStep(3, 8);
                     await this.sleepNow(this.state.timeout);
 
-                    await this.changeVertex(successor.id, successor.color, (actual.level - successor.level));
+                    await this.changeVertex(successor.id, this.color[successor.level + (actual.level - successor.level) - 1], (actual.level - successor.level));
                     await this.setEinOfVertex(successor.id, [actual.id]);
                     await F.push(successor.id);
                 }
@@ -683,7 +695,8 @@ class NetworkGraph extends React.Component {
                 //hierarchical: true
             },
             edges: {
-                color: "#000000"
+                color: "#000000",
+                smooth: {type: "curvedCCW"}
             },
             physics: {
                 enabled: false
