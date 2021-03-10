@@ -726,6 +726,7 @@ class NetworkGraph extends React.Component {
             >
                 <div>
                     <p>Sekvence hran k vložení: {renderTupleList(this.state.sequenceToAdd)}</p>
+                    <p>Přidávám hranu z {this.state.from} do {this.state.to}</p>
                     <br/>
                     <button
                         onClick={this.step}
