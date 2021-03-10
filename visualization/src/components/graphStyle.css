@@ -14,3 +14,17 @@
 .procedure {
     width: 30%;
 }
+
+.topPanel {
+    display: flex;
+    flex-direction: row;
+    margin-left: 10px;
+    margin-bottom: 10px;
+    margin-top: 10px;
+}
+
+.bottomPanel {
+    margin-left: 10px;
+    margin-bottom: 10px;
+    margin-top: 10px;
+}

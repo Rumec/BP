@@ -3,6 +3,8 @@ import Graph from "react-graph-vis";
 import './graphStyle.css';
 import SparseGraphPseudocode from "./SparseGraphPseudocode";
 import SparseGraphSubprocedure from "./SparseGraphSubprocedure";
+import SparseGraphDemoLoading from "./SparseGraphDemoLoading";
+import SparseGraphDemoStep from "./SparseGraphDemoStep";
 //import DFS from "./DFS";
 //import SparseGraph from "./SparseGraph";
 
@@ -31,6 +33,7 @@ class NetworkGraph extends React.Component {
             '#E64D66', '#4DB380', '#FF4D4D', '#99E6E6', '#6666FF'];
 
         this.state = {
+            sequenceToAdd: [],
             subprocedure: 0,
             subprocedureStep: 0,
             mainProcedureStep: 0,
@@ -64,6 +67,7 @@ class NetworkGraph extends React.Component {
         this.setEinOfVertex = this.setEinOfVertex.bind(this);
         this.setSubprocedureStep = this.setSubprocedureStep.bind(this);
         this.changeValue = this.changeValue.bind(this);
+        this.cancelDemo = this.cancelDemo.bind(this);
     }
 
     async changeValue(id, newValue) {
@@ -72,6 +76,13 @@ class NetworkGraph extends React.Component {
         })
     }
 
+    /**
+     * Sets step of the specified subprocedure for pseudocode animation
+     *
+     * @param subprocedure - Number of subprocedure we want to animate
+     * @param step - Current step in specified subprocedure
+     * @returns {Promise<void>}
+     */
     async setSubprocedureStep(subprocedure, step) {
         await this.setState({
             subprocedure: subprocedure,
@@ -144,6 +155,10 @@ class NetworkGraph extends React.Component {
         let nodesArr = [];
         let followerList = {};
         let e_in = {};
+        await this.setState({
+            //sequenceToAdd: [],
+            nodes: [],
+        })
         for (let i = 1; i <= this.state.numberOfVertices; ++i) {
             await nodesArr.push({
                 id: i,
@@ -166,7 +181,6 @@ class NetworkGraph extends React.Component {
             edges: [],
             delta: 0
         });
-        //console.log(this.state.nodes);
     }
 
     /**
@@ -385,6 +399,8 @@ class NetworkGraph extends React.Component {
 
     /**************************/
 
+    /* Sparse graph algorithm */
+
     /**
      * Main procedure of algorithm for sparse graphs
      *
@@ -505,9 +521,6 @@ class NetworkGraph extends React.Component {
 
         await this.addVisitedVertex(start);
 
-        /**
-         * Opravit v BP a implementaci! Dodělat animaci!
-         */
         await this.setSubprocedureStep(2, 4);
         await this.sleepNow(this.state.timeout);
         if (this.state.e_in[start].length === 0 && this.state.visited.length >= this.state.delta + 1) {
@@ -515,14 +528,7 @@ class NetworkGraph extends React.Component {
             await this.sleepNow(this.state.timeout);
 
             return this.status.MORE_THAN_DELTA_EDGES;
-        } /*else if (this.state.e_in[start].length === 0 && this.state.visited.length < this.state.delta + 1) {
-            await this.setSubprocedureStep(2, 6);
-            await this.sleepNow(this.state.timeout);
-            await this.setSubprocedureStep(2, 7);
-            await this.sleepNow(this.state.timeout);
-
-            return this.status.LESS_THAN_DELTA_EDGES;
-        }*/
+        }
 
         for (let i = 0; i < this.state.e_in[start].length; ++i) {
             let predecessor = await this.state.e_in[start][i];
@@ -679,13 +685,94 @@ class NetworkGraph extends React.Component {
                 await console.log("cycle");
                 await window.alert("Cycle detected!");
             }
-
             await this.changeProgress();
         }
 
     }
 
     /**************************/
+
+    async cancelDemo() {
+        await this.changeValue("sequenceToAdd", []);
+        await this.changeValue("numberOfVertices", 0);
+        await this.generateGraph();
+    }
+
+    cancelDemoButton() {
+        return(
+            <button
+                onClick={this.cancelDemo}
+            >
+                Zruš demo
+            </button>
+        )
+    }
+
+    manualAdding() {
+        return (
+            <div
+                className={"graphLayout"}
+                style={{
+                    marginLeft: 10
+                }}
+            >
+                <div>
+                    <p>Přidávám hranu z {this.state.from} do {this.state.to}</p>
+                    <br/>
+
+                    <div>
+                        <label>
+                            <input
+                                name={"from"}
+                                type={"number"}
+                                value={this.state.from}
+                                onChange={(!this.state.inProgress) ? this.handleChange : () => {
+                                }}
+                            />
+                            Výchozí vrchol
+                        </label>
+
+                        <label>
+                            <input
+                                name={"to"}
+                                type={"number"}
+                                value={this.state.to}
+                                onChange={(!this.state.inProgress) ? this.handleChange : () => {
+                                }}
+                            />
+                            Cílový vrchol
+                        </label>
+
+                        <button
+                            onClick={() => {
+                                this.mainProcedure();
+                            }}
+                        >
+                            Vlož hranu
+                        </button>
+                    </div>
+                    <br/>
+                    <label>
+                        <input
+                            name={"timeoutInput"}
+                            type={"number"}
+                            value={this.state.timeoutInput}
+                            onChange={this.handleChange}
+                        />
+                        Délka kroku
+                    </label>
+                    <button
+                        onClick={this.setTimeoutFromInput}
+                    >
+                        Nastav délku kroku
+                    </button>
+                </div>
+                <div>
+                    <h2 style={{margin: 40}}>Delta= {this.state.delta}</h2>
+                </div>
+            </div>
+        )
+    }
 
     render() {
         const graph = {nodes: this.state.nodes, edges: this.state.edges};
@@ -717,6 +804,41 @@ class NetworkGraph extends React.Component {
         return (
             <div>
                 <div
+                    className={"topPanel"}
+                >
+                    <div
+                        className={"graphBox"}
+                    >
+                        <text style={{
+                            fontWeight: "bold"
+                        }}>Počet vrcholů:
+                        </text>
+                        <input
+                            name={"numberOfVertices"}
+                            type={"number"}
+                            value={this.state.numberOfVertices}
+                            onChange={this.handleChange}
+                        />
+                        <button
+                            onClick={(!this.state.inProgress) ? this.generateGraph : () => {
+                            }}
+                        >
+                            Generuj graf
+                        </button>
+                    </div>
+                    <div
+                        className={"pseudoCode"}
+                    >
+                        <SparseGraphDemoLoading
+                            state={this.state}
+                            changeValue={this.changeValue}
+                            generateGraph={this.generateGraph}
+                        />
+                        {(this.state.sequenceToAdd.length !== 0)? this.cancelDemoButton() : () => {}}
+                    </div>
+                </div>
+                <hr/>
+                <div
                     className={"graphLayout"}
                 >
                     <div
@@ -744,86 +866,14 @@ class NetworkGraph extends React.Component {
                         />
                     </div>
                 </div>
-                <br></br>
-                <div
-                    className={"graphLayout"}
-                >
-                    <div>
-                        <input
-                            name={"numberOfVertices"}
-                            type={"number"}
-                            value={this.state.numberOfVertices}
-                            onChange={this.handleChange}
-                        />
-                        <button
-                            onClick={(!this.state.inProgress) ? this.generateGraph : () => {
-                            }}
-                        >
-                            Generuj graf
-                        </button>
-
-                        <br/>
-
-
-                        <p>Přidávám hranu z {this.state.from} do {this.state.to}</p>
-
-
-                        <br/>
-
-                        <div>
-                            <label>
-                                <input
-                                    name={"from"}
-                                    type={"number"}
-                                    value={this.state.from}
-                                    onChange={(!this.state.inProgress) ? this.handleChange : () => {
-                                    }}
-                                />
-                                Výchozí vrchol
-                            </label>
-
-                            <label>
-                                <input
-                                    name={"to"}
-                                    type={"number"}
-                                    value={this.state.to}
-                                    onChange={(!this.state.inProgress) ? this.handleChange : () => {
-                                    }}
-                                />
-                                Cílový vrchol
-                            </label>
-
-                            <button
-                                onClick={() => {
-                                    this.mainProcedure();
-                                }}
-                            >
-                                Vlož hranu
-                            </button>
-                        </div>
-
-
-                        <br/>
-                        <br/>
-                        <label>
-                            <input
-                                name={"timeoutInput"}
-                                type={"number"}
-                                value={this.state.timeoutInput}
-                                onChange={this.handleChange}
-                            />
-                            Délka kroku
-                        </label>
-                        <button
-                            onClick={this.setTimeoutFromInput}
-                        >
-                            Nastav délku kroku
-                        </button>
-                    </div>
-                    <div>
-                        <h2 style={{margin: 40}}>Delta= {this.state.delta}</h2>
-                    </div>
-                </div>
+                <hr/>
+                {(this.state.sequenceToAdd.length !== 0) ?
+                    <SparseGraphDemoStep
+                        state={this.state}
+                        changeValue={this.changeValue}
+                        generateGraph={this.generateGraph}
+                    />
+                 : this.manualAdding()}
             </div>
 
         )
