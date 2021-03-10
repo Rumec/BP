@@ -684,19 +684,19 @@ class NetworkGraph extends React.Component {
             await this.changeProgress();
 
             if (to === from) {
-                window.alert("Cannot create loop");
+                window.alert("Smyčky jsou zakázány!");
             } else if (this.state.edges.some(edge => edge.from === from && edge.to === to)) {
-                window.alert("Edge already exists!");
+                window.alert("Hrana již existuje!");
             } else if (from > this.state.numberOfVertices || to > this.state.numberOfVertices ||
                 from < 1 || to < 1) {
-                await window.alert("Chosen vertices do not exist in the graph!");
+                await window.alert("Zvolené vrcholy se v grafu nenacházejí!");
             } else if (await this.insertEdge()) {
                 // Adding edge which creates cycle (green color)
                 await this.addEdge();
                 await this.colorEdge(this.state.from, this.state.to, "green");
 
                 await console.log("cycle");
-                await window.alert("Cycle detected!");
+                await window.alert("Zjištěn cyklus!");
             }
             await this.changeProgress();
         }
