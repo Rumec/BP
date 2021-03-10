@@ -180,8 +180,19 @@ class NetworkGraph extends React.Component {
             e_in: e_in,
             nodes: nodesArr,
             edges: [],
-            delta: 0
+            delta: 0,
+            from: 0,
+            to: 0,
         });
+
+        /**
+         * Osetřit jinak!!!
+         */
+        if (this.state.sequenceToAdd.length !== 10) {
+            this.setState({
+                sequenceToAdd: []
+            })
+        }
     }
 
     /**
@@ -759,13 +770,15 @@ class NetworkGraph extends React.Component {
     async cancelDemo() {
         await this.changeValue("sequenceToAdd", []);
         await this.changeValue("numberOfVertices", 0);
+        await this.setSubprocedureStep(0, 0);
         await this.generateGraph();
+        //await console.log(this.state.sequenceToAdd);
     }
 
     cancelDemoButton() {
         return (
             <button
-                onClick={this.cancelDemo}
+                onClick={(!this.state.inProgress)? this.cancelDemo : () => {}}
             >
                 Zruš demo
             </button>
@@ -898,7 +911,7 @@ class NetworkGraph extends React.Component {
                             changeValue={this.changeValue}
                             generateGraph={this.generateGraph}
                         />
-                        {(this.state.sequenceToAdd.length !== 0) ? this.cancelDemoButton() : () => {
+                        {(this.state.sequenceToAdd.length !== 0 && !this.state.inProgress) ? this.cancelDemoButton() : () => {
                         }}
                     </div>
                 </div>
