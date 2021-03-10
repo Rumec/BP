@@ -68,6 +68,7 @@ class NetworkGraph extends React.Component {
         this.setSubprocedureStep = this.setSubprocedureStep.bind(this);
         this.changeValue = this.changeValue.bind(this);
         this.cancelDemo = this.cancelDemo.bind(this);
+        this.step = this.step.bind(this);
     }
 
     async changeValue(id, newValue) {
@@ -664,6 +665,7 @@ class NetworkGraph extends React.Component {
     }
 
     async mainProcedure() {
+        console.log(this.state.from, this.state.to)
         if (!this.state.inProgress) {
             const from = parseInt(this.state.from);
             const to = parseInt(this.state.to);
@@ -692,6 +694,67 @@ class NetworkGraph extends React.Component {
 
     /**************************/
 
+    async step() {
+        await this.changeValue("from", this.state.sequenceToAdd[0][0]);
+        await this.changeValue("to", this.state.sequenceToAdd[0][1]);
+        /**
+         * This is actual algorithm
+         */
+        await this.mainProcedure();
+
+        let tmp = this.state.sequenceToAdd.slice();
+        tmp.shift();
+        await this.changeValue("sequenceToAdd", tmp);
+    }
+
+    SparseGraphDemoStep() {
+        function renderTupleList(list) {
+            let out = "";
+            for (let i = 0; i < list.length; ++i) {
+                out += "(" + list[i][0] + ", " + list[i][1] + ")";
+                out += (i < list.length - 1) ? ", " : "";
+            }
+            return out;
+        }
+
+        return (
+            <div
+                className={"graphLayout"}
+                style={{
+                    marginLeft: 10
+                }}
+            >
+                <div>
+                    <p>Sekvence hran k vložení: {renderTupleList(this.state.sequenceToAdd)}</p>
+                    <br/>
+                    <button
+                        onClick={this.step}
+                    >
+                        Přidat hranu ze sekvence
+                    </button>
+                    <br/><br/>
+                    <label>
+                        <input
+                            name={"timeoutInput"}
+                            type={"number"}
+                            value={this.state.timeoutInput}
+                            onChange={this.handleChange}
+                        />
+                        Délka kroku
+                    </label>
+                    <button
+                        onClick={this.setTimeoutFromInput}
+                    >
+                        Nastav délku kroku
+                    </button>
+                </div>
+                <div>
+                    <h2 style={{margin: 40}}>Delta= {this.state.delta}</h2>
+                </div>
+            </div>
+        )
+    }
+
     async cancelDemo() {
         await this.changeValue("sequenceToAdd", []);
         await this.changeValue("numberOfVertices", 0);
@@ -699,7 +762,7 @@ class NetworkGraph extends React.Component {
     }
 
     cancelDemoButton() {
-        return(
+        return (
             <button
                 onClick={this.cancelDemo}
             >
@@ -834,7 +897,8 @@ class NetworkGraph extends React.Component {
                             changeValue={this.changeValue}
                             generateGraph={this.generateGraph}
                         />
-                        {(this.state.sequenceToAdd.length !== 0)? this.cancelDemoButton() : () => {}}
+                        {(this.state.sequenceToAdd.length !== 0) ? this.cancelDemoButton() : () => {
+                        }}
                     </div>
                 </div>
                 <hr/>
@@ -868,12 +932,8 @@ class NetworkGraph extends React.Component {
                 </div>
                 <hr/>
                 {(this.state.sequenceToAdd.length !== 0) ?
-                    <SparseGraphDemoStep
-                        state={this.state}
-                        changeValue={this.changeValue}
-                        generateGraph={this.generateGraph}
-                    />
-                 : this.manualAdding()}
+                    this.SparseGraphDemoStep()
+                    : this.manualAdding()}
             </div>
 
         )
