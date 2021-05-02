@@ -29,10 +29,6 @@ class Graf:
         self.m = 0
         self.delta = 0
 
-        self.k = []
-        self.e_in = []
-        self.e_out = []
-
         # Inicializace urovni vsech vrcholu na 1 a nastaveni mnozin in() a out() pro vsechny vrcholy jako prazdne
         self.k = [1 for _ in range(vrcholy)]
         self.e_in = [set() for _ in range(vrcholy)]
