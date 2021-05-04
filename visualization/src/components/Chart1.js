@@ -33,6 +33,7 @@ class NetworkGraph extends React.Component {
             '#E64D66', '#4DB380', '#FF4D4D', '#99E6E6', '#6666FF'];
 
         this.state = {
+            graphType: "sparse",
             sequenceToAdd: [],
             subprocedure: 0,
             subprocedureStep: 0,
@@ -69,6 +70,7 @@ class NetworkGraph extends React.Component {
         this.changeValue = this.changeValue.bind(this);
         this.cancelDemo = this.cancelDemo.bind(this);
         this.step = this.step.bind(this);
+        this.handleDropdownChange = this.handleDropdownChange.bind(this);
     }
 
     async changeValue(id, newValue) {
@@ -146,6 +148,31 @@ class NetworkGraph extends React.Component {
          */
     }
 
+    handleDropdownChange(event) {
+        this.setState({
+            graphType: event.target.value,
+            sequenceToAdd: [],
+            subprocedure: 0,
+            subprocedureStep: 0,
+            mainProcedureStep: 0,
+            timeoutInput: 500,
+            timeout: 500,
+            followerList: {},
+
+            e_in: {}, // JSON of lists in incoming edges
+            delta: 0,
+
+            inProgress: false,
+            visited: [],
+            addingEdge: false,
+            from: 0,
+            to: 0,
+            numberOfVertices: 0,
+            nodes: [],
+            edges: []
+        });
+    }
+
     /**
      * Generates new graph, sets levels of all vertices to 1
      *
@@ -164,6 +191,7 @@ class NetworkGraph extends React.Component {
             await nodesArr.push({
                 id: i,
                 level: 1,
+                inDegree: 0,
                 label: i.toString() + ", 1",
                 title: i.toString(),
                 color: this.color[0],
@@ -197,10 +225,10 @@ class NetworkGraph extends React.Component {
 
     /**
      * Adds new edge to graph
-     *
+     * @param k_out - approximate level of an edge (used as key)
      * @returns {Promise<void>}
      */
-    async addEdge() {
+    async addEdge(k_out = 1) {
         const from = parseInt(this.state.from);
         const to = parseInt(this.state.to);
 
@@ -209,7 +237,8 @@ class NetworkGraph extends React.Component {
             from: from,
             to: to,
             color: "black",
-            width: 3
+            width: 3,
+            k_out: k_out
         });
 
         const oldFollowerList = await this.state.followerList;
@@ -270,15 +299,17 @@ class NetworkGraph extends React.Component {
      * @param id - ID of the node to be changed
      * @param color - Color to be set
      * @param levelIncrease - Value by which nodes level should be increased
+     * @param degreeIncrease - Value by which nodes degree should be increased
      * @returns {Promise<void>}
      */
-    async changeVertex(id, color, levelIncrease) {
+    async changeVertex(id, color, levelIncrease, degreeIncrease = 0) {
         await this.setState(prevState => {
             prevState.nodes = prevState.nodes.map(node => {
                 if (node.id === id) {
                     return {
                         id: id,
                         level: node.level + levelIncrease,
+                        inDegree: node.inDegree + degreeIncrease,
                         label: id.toString() + ", " + (node.level + levelIncrease).toString(),
                         title: node.title,
                         color: color
@@ -340,11 +371,33 @@ class NetworkGraph extends React.Component {
         const index = oldEdges.findIndex(item =>
             item.from === from && item.to === to
         );
+        const edgeKOut = oldEdges[index].k_out;
         await oldEdges.splice(index, 1);
         await oldEdges.push({
                 from: from,
                 to: to,
+                k_out: edgeKOut,
                 color: color,
+                width: 3
+            }
+        )
+        await this.setState({
+            edges: oldEdges,
+        });
+    }
+
+    async changeEdgesKOut(from, to, new_k_out) {
+        let oldEdges = await this.state.edges.slice();
+        const index = oldEdges.findIndex(item =>
+            item.from === from && item.to === to
+        );
+        const edgesColor = oldEdges[index].color;
+        await oldEdges.splice(index, 1);
+        await oldEdges.push({
+                from: from,
+                to: to,
+                k_out: new_k_out,
+                color: edgesColor,
                 width: 3
             }
         )
@@ -367,6 +420,7 @@ class NetworkGraph extends React.Component {
             let tmpEdge = {
                 from: oldEdges[0].from,
                 to: oldEdges[0].to,
+                k_out: oldEdges[0].k_out,
                 color: "black",
                 width: 3
             };
@@ -387,6 +441,7 @@ class NetworkGraph extends React.Component {
                 node = {
                     id: node.id,
                     level: node.level,
+                    inDegree: node.inDegree,
                     label: node.label,
                     title: node.title,
                     color: this.color[node.level - 1]
@@ -778,7 +833,8 @@ class NetworkGraph extends React.Component {
     cancelDemoButton() {
         return (
             <button
-                onClick={(!this.state.inProgress)? this.cancelDemo : () => {}}
+                onClick={(!this.state.inProgress) ? this.cancelDemo : () => {
+                }}
             >
                 Zruš demo
             </button>
@@ -871,11 +927,11 @@ class NetworkGraph extends React.Component {
         const events = {
             // arrow function can access scope of whole component class
             selectNode: async (event) => {
-                await this.selectVertex(event)
+                //await this.selectVertex(event)
             },
 
             dragStart: async (event) => {
-                await this.selectVertex(event)
+                //await this.selectVertex(event)
             }
         };
         return (
@@ -913,6 +969,15 @@ class NetworkGraph extends React.Component {
                         />
                         {(this.state.sequenceToAdd.length !== 0 && !this.state.inProgress) ? this.cancelDemoButton() : () => {
                         }}
+                    </div>
+                    <div>
+                        <label>
+                            Vyberte algoritmus:
+                            <select value={this.state.graphType} onChange={this.handleDropdownChange}>
+                                <option value={"sparse"}>Algoritmus pro řídký graf</option>
+                                <option value={"dense"}>Algoritmus pro hustý graf</option>
+                            </select>
+                        </label>
                     </div>
                 </div>
                 <hr/>

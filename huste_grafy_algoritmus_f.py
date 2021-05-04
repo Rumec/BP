@@ -3,18 +3,17 @@ import math, heapq
 
 class Graf:
     """
-    Trida Graf obsahuje reprezentaci grafu seznamem nasledniku. Tato reprezentace je vyhodna vzhledem ke skutecnosti,
-    ze mnozina out() jiz obdobu seznamu nasledniku predstavuje. Mnoziny in() a out() jsou pojmenovany e_in() a e_out(),
-    protoze Python pouziva 'in' jako rezervovane slovo, out mezi rezervovana slova nepatri ale prefix 'e_' pouzijeme
-    kvuli konzistenci.
+    Trida Graf obsahuje reprezentaci grafu. Zaroven v sobe zapouzdruje datove struktury a promenne algoritmu.
 
     Atributy:
         n:      pocet vrcholu grafu
-        delta:  hranice pro zpetny pruzkum
         k:      seznam urovni aktualne prirazeny vsem vrcholum v grafu
-        e_in:   seznam obsahujici mnozinu vstupnich hran in() pro vsechny vrcholy dle definice (pro in(v) tedy plati, ze
-                obsahuje takove hrany (x, v), pro ktere plati k(x) = k(v)
-        e_out:  seznam obsahujici mnozinu vystupnich hran out() pro vsechny vrcholy (seznam nasledniku)
+        d:      seznam vstupnich stupnu vsech vrcholu
+        e_out:  seznam obsahujici prioritni frontu (minimovou haldu) vystupnich hran out() pro vsechny vrcholy, prefix
+                e_ pouzivame pro konzistenci s implementaci algoritmu pro ridke grafy
+        b:      seznam mezi vrcholu pri danem rozsahu pruchodu
+        c:      pocet navstev vrcholu pri danem rozsahu pruchodu
+
     """
 
     def __init__(self, vrcholy):
@@ -25,18 +24,28 @@ class Graf:
         """
         self.n = vrcholy
 
-        # Inicializace urovni vsech vrcholu na 1 a nastaveni mnozin in() a out() pro vsechny vrcholy jako prazdne
+        # Inicializace datovych struktur
         self.k = [1 for _ in range(vrcholy)]
         self.d = [0 for _ in range(vrcholy)]
         self.e_out = [[] for _ in range(vrcholy)]
         self.b = [[1 for _ in range(vrcholy)] for _ in range(vrcholy)]
-        self.b = [[0 for _ in range(vrcholy)] for _ in range(vrcholy)]
+        self.c = [[0 for _ in range(vrcholy)] for _ in range(vrcholy)]
 
 
 def husty_graf_rychly(vrcholy, sekvence_hran):
+    """
+    Hlavni funkce algoritmu. Inicializace promennych a datovych struktur je zapouzdrena do konstruktoru objektu grafu.
+    Funkce vypise na vystup hranu, ktera cyklus vytvorila.
+
+    :param vrcholy:         pocet vrcholu grafu
+    :param sekvence_hran:   sekvence hran k vlozeni, seznam dvojic
+    :return:                True, pokud vznikl cyklus
+                            False jinak
+    """
     graf = Graf(vrcholy)
 
     for v, w in sekvence_hran:
+        # Od cisel vrcholu odecitame 1 kvli indexovani od 0
         if vlozeni_hrany(graf, v - 1, w - 1):
             print("Vlozeni hrany ({}, {}) vytvorilo cyklus!".format(v, w))
             return True
@@ -44,9 +53,20 @@ def husty_graf_rychly(vrcholy, sekvence_hran):
 
 
 def vlozeni_hrany(graf, v, w):
+    """
+    Hlavni funkce vkladani hrany. Pro prehlednost a konzistenci s bakalarskou praci je pruchod hranou samostatnou funkci
+
+    :param graf:    graf do nehoz vkladame hranu
+    :param v:       pocatecni vrchol hrany
+    :param w:       koncovy vrchol hrany
+    :return:        True pokud vznikl pridanim hrany cyklus
+                    False jinak
+    """
+    # Zvyseni vstupniho stupne vrcholu w
     graf.d[w] += 1
 
     if graf.k[v] < graf.k[w]:
+        # Neni poruseno slabe topologicke usporadani
         j = math.floor(math.log(min(graf.k[w] - graf.k[v], graf.d[w]), 2))
         if graf.d[w] == pow(2, j):
             graf.b[j][w] = graf.k[w]

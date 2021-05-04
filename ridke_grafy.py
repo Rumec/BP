@@ -4,8 +4,7 @@ import enum
 
 class Graf:
     """
-    Trida Graf obsahuje reprezentaci grafu seznamem nasledniku. Tato reprezentace je vyhodna vzhledem ke skutecnosti,
-    ze mnozina out() jiz obdobu seznamu nasledniku predstavuje. Mnoziny in() a out() jsou pojmenovany e_in() a e_out(),
+    Trida Graf obsahuje reprezentaci grafu. Mnoziny in() a out() jsou pojmenovany e_in() a e_out(),
     protoze Python pouziva 'in' jako rezervovane slovo, out mezi rezervovana slova nepatri ale prefix 'e_' pouzijeme
     kvuli konzistenci.
 
@@ -16,7 +15,7 @@ class Graf:
         k:      seznam urovni aktualne prirazeny vsem vrcholum v grafu
         e_in:   seznam obsahujici mnozinu vstupnich hran in() pro vsechny vrcholy dle definice (pro in(v) tedy plati, ze
                 obsahuje takove hrany (x, v), pro ktere plati k(x) = k(v)
-        e_out:  seznam obsahujici mnozinu vystupnich hran out() pro vsechny vrcholy (seznam nasledniku)
+        e_out:  seznam obsahujici mnozinu vystupnich hran out() pro vsechny vrcholy
     """
 
     def __init__(self, vrcholy):
