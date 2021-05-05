@@ -148,6 +148,11 @@ class NetworkGraph extends React.Component {
          */
     }
 
+    /**
+     * Changes the actual graph type and also resets the graph properties
+     *
+     * @param event
+     */
     handleDropdownChange(event) {
         this.setState({
             graphType: event.target.value,
@@ -997,16 +1002,16 @@ class NetworkGraph extends React.Component {
                     <div
                         className={"pseudoCode"}
                     >
-                        <SparseGraphPseudocode step={this.state.mainProcedureStep}/>
+                        {(this.state.graphType === "sparse")? <SparseGraphPseudocode step={this.state.mainProcedureStep}/> : "dense" }
                     </div>
 
                     <div
                         className={"procedure"}
                     >
-                        <SparseGraphSubprocedure
+                        {(this.state.graphType === "sparse")? <SparseGraphSubprocedure
                             procedure={this.state.subprocedure}
                             step={this.state.subprocedureStep}
-                        />
+                        /> : "dense"}
                     </div>
                 </div>
                 <hr/>
