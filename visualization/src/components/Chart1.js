@@ -52,7 +52,9 @@ class NetworkGraph extends React.Component {
             to: 0,
             numberOfVertices: 0,
             nodes: [],
-            edges: []
+            edges: [],
+            b: [],
+            c: []
         };
         this.handleChange = this.handleChange.bind(this);
         this.generateGraph = this.generateGraph.bind(this);
@@ -174,7 +176,9 @@ class NetworkGraph extends React.Component {
             to: 0,
             numberOfVertices: 0,
             nodes: [],
-            edges: []
+            edges: [],
+            b: [],
+            c: []
         });
     }
 
@@ -186,6 +190,10 @@ class NetworkGraph extends React.Component {
     async generateGraph() {
         let actualAngle = 0;
         let nodesArr = [];
+        let bArr = [];
+        let bTmp;
+        let cArr = [];
+        let cTmp;
         let followerList = {};
         let e_in = {};
         await this.setState({
@@ -193,6 +201,14 @@ class NetworkGraph extends React.Component {
             nodes: [],
         })
         for (let i = 1; i <= this.state.numberOfVertices; ++i) {
+            bTmp = [];
+            cTmp = [];
+            for (let j = 1; j <= this.state.numberOfVertices; ++j) {
+                bTmp.push(1);
+                cTmp.push(0);
+            }
+            bArr.push(bTmp);
+            cArr.push(cTmp);
             await nodesArr.push({
                 id: i,
                 level: 1,
@@ -216,6 +232,8 @@ class NetworkGraph extends React.Component {
             delta: 0,
             from: 0,
             to: 0,
+            b: bArr,
+            c: cArr
         });
 
         /**
@@ -478,7 +496,7 @@ class NetworkGraph extends React.Component {
      *
      * @returns {Promise<boolean>}
      */
-    async insertEdge() {
+    async insertEdgeSparse() {
         let forward = false;
         let actualStatus;
 
@@ -735,8 +753,10 @@ class NetworkGraph extends React.Component {
         await this.setSubprocedureStep(0, 0);
     }
 
+    /**************************/
+
     async mainProcedure() {
-        console.log(this.state.from, this.state.to)
+        // console.log(this.state.from, this.state.to)
         if (!this.state.inProgress) {
             const from = parseInt(this.state.from);
             const to = parseInt(this.state.to);
@@ -750,20 +770,23 @@ class NetworkGraph extends React.Component {
             } else if (from > this.state.numberOfVertices || to > this.state.numberOfVertices ||
                 from < 1 || to < 1) {
                 await window.alert("Zvolené vrcholy se v grafu nenacházejí!");
-            } else if (await this.insertEdge()) {
-                // Adding edge which creates cycle (green color)
-                await this.addEdge();
-                await this.colorEdge(this.state.from, this.state.to, "green");
+            } else if (this.state.graphType === "sparse") {
+                if (await this.insertEdgeSparse()) {
+                    // Adding edge which creates cycle (green color)
+                    await this.addEdge();
+                    await this.colorEdge(this.state.from, this.state.to, "green");
 
-                await console.log("cycle");
-                await window.alert("Zjištěn cyklus!");
+                    await console.log("cycle");
+                    await window.alert("Zjištěn cyklus!");
+                }
+
+            } else if (this.state.graphType === "dense") {
+                console.log("prdel");
             }
             await this.changeProgress();
         }
-
     }
 
-    /**************************/
 
     async step() {
         await this.changeValue("from", this.state.sequenceToAdd[0][0]);
