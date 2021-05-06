@@ -743,15 +743,17 @@ class NetworkGraph extends React.Component {
         let fromVertex = this.state.nodes[this.state.nodes.findIndex(node => node.id === this.state.from)],
             toVertex = this.state.nodes[this.state.nodes.findIndex(node => node.id === this.state.to)];
 
+        // Coloring edges + increasing in-degree of ending edge
         await this.changeVertex(fromVertex.id, "orange", 0);
         await this.changeVertex(toVertex.id, "orange", 0, 1);
         toVertex.inDegree++;
 
+        //await console.log(this.state.nodes);
+        //await console.log(toVertex.inDegree);
 
-        await console.log(this.state.nodes);
-        await console.log(toVertex.inDegree);
+        //await this.sleepNow(this.state.timeout);
 
-        await this.sleepNow(this.state.timeout);
+
 
         if (fromVertex.level < toVertex.level) {
             let j = Math.floor(Math.log2(Math.min(toVertex.level - fromVertex.level, toVertex.inDegree)));
@@ -759,6 +761,10 @@ class NetworkGraph extends React.Component {
             await console.log(`j = ${j}`);
 
             if (toVertex.inDegree === Math.pow(2, j)) {
+
+                //await console.log(`new degree possible`);
+                //await console.log(`setting new B value`);
+
                 let oldB = await this.state.b.slice();
                 oldB[j][toVertex.id] = await toVertex.level;
                 await this.setState({
@@ -766,6 +772,8 @@ class NetworkGraph extends React.Component {
                 })
 
                 //await console.log(this.state);
+
+                //await console.log(`setting new C value`);
 
                 let oldC = await this.state.c.slice();
                 oldC[j][toVertex.id] = 0;
@@ -775,9 +783,11 @@ class NetworkGraph extends React.Component {
                 })
             }
 
+            //await console.log(`adding edge`);
+
             await this.addEdge(toVertex.level);
 
-            await console.log(this.state);
+            //await console.log(this.state);
 
             return false;
         }
@@ -788,12 +798,19 @@ class NetworkGraph extends React.Component {
 
         while (T.length) {
             let currentEdge = await T.pop();
+
+            await console.log(currentEdge);
+
             if (await this.traversalStep(currentEdge.from, currentEdge.to, T, fromVertex.id)) {
+
                 return true;
             }
+
+            //await console.log(`traversed edge: from: ${currentEdge.from} to: ${currentEdge.to}`)
+            //await console.log(this.state.edges)
         }
 
-
+        await this.colorGraphToDefault();
         return false;
     }
 
@@ -802,13 +819,21 @@ class NetworkGraph extends React.Component {
             return true;
         }
 
-        let fromVertex = this.state.nodes[this.state.nodes.findIndex(node => node.id === this.state.from)],
-            toVertex = this.state.nodes[this.state.nodes.findIndex(node => node.id === this.state.to)];
+        let fromVertex = this.state.nodes[this.state.nodes.findIndex(node => node.id === from)],
+            toVertex = this.state.nodes[this.state.nodes.findIndex(node => node.id === to)];
+
+        await console.log(`Entered edge: (${fromVertex.id}, ${toVertex.id}`);
 
         if (fromVertex.level >= toVertex.level) {
+
+            //await console.log(`k(v) = ${fromVertex.level}, k(w) = ${toVertex.level}`)
+            //await console.log(`Changing vertex`)
+
             await this.changeVertex(toVertex.id, toVertex.color, (fromVertex.level - toVertex.level) + 1);
 
-            toVertex = this.state.nodes[this.state.nodes.findIndex(node => node.id === this.state.to)];
+            //await console.log(`vertex changed!`)
+
+            toVertex = this.state.nodes[this.state.nodes.findIndex(node => node.id === toVertex.id)];
         } else {
             let j = Math.floor(Math.log2(Math.min(toVertex.level - fromVertex.level, toVertex.inDegree)));
 
@@ -828,7 +853,7 @@ class NetworkGraph extends React.Component {
 
                 await this.changeVertex(toVertex.id, toVertex.color, Math.max(toVertex.level, this.state.b[j][toVertex.id] + Math.pow(2, j)));
 
-                toVertex = this.state.nodes[this.state.nodes.findIndex(node => node.id === this.state.to)];
+                toVertex = this.state.nodes[this.state.nodes.findIndex(node => node.id === toVertex.id)];
 
                 let oldB = await this.state.b.slice();
                 oldB[j][toVertex.id] = toVertex.level;
@@ -840,11 +865,20 @@ class NetworkGraph extends React.Component {
 
         let edgesToBeTraversed = this.state.edges.filter((edge) => {return edge.from === toVertex.id && edge.k_out <= toVertex.level});
 
+        //await console.log("Edges to be traversed: " + edgesToBeTraversed);
+
         for (let i = 0; i < edgesToBeTraversed.length; ++i) {
             T.push({from: edgesToBeTraversed[i].from, to: edgesToBeTraversed[i].to});
         }
 
-        const edgeColor = this.state.edges[this.state.edges.findIndex(e => e.from === fromVertex.id && e.to === toVertex.id)].color;
+        //await console.log(`Actual edge: (${fromVertex.id}, ${toVertex.id}`);
+        //await console.log(this.state.edges);
+
+        const index = this.state.edges.findIndex(e => e.from === fromVertex.id && e.to === toVertex.id);
+
+        await console.log(index);
+
+        const edgeColor = this.state.edges[index].color;
 
         await this.changeEdge(fromVertex.id, toVertex.id, edgeColor, toVertex.level);
 
@@ -874,7 +908,6 @@ class NetworkGraph extends React.Component {
                     await console.log("cycle");
                     await window.alert("Zjištěn cyklus!");
                 }
-
             } else if (this.state.graphType === "dense") {
                 if (await this.insertEdgeDense()) {
                     await this.addEdge();
