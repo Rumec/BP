@@ -60,7 +60,7 @@ class NetworkGraph extends React.Component {
         this.generateGraph = this.generateGraph.bind(this);
         this.addEdge = this.addEdge.bind(this);
         this.changeVertex = this.changeVertex.bind(this);
-        this.colorEdge = this.colorEdge.bind(this);
+        this.changeEdge = this.changeEdge.bind(this);
         this.colorGraphToDefault = this.colorGraphToDefault.bind(this);
         this.changeProgress = this.changeProgress.bind(this);
         this.addVisitedVertex = this.addVisitedVertex.bind(this);
@@ -387,9 +387,10 @@ class NetworkGraph extends React.Component {
      * @param from - Starting vertex of edge
      * @param to - Ending vertex of edge
      * @param color - Color of the edge
+     * @param newKOut - new value of k_out for current edge
      * @returns {Promise<void>}
      */
-    async colorEdge(from, to, color) {
+    async changeEdge(from, to, color, newKOut = 0) {
         let oldEdges = await this.state.edges.slice();
         const index = oldEdges.findIndex(item =>
             item.from === from && item.to === to
@@ -399,7 +400,7 @@ class NetworkGraph extends React.Component {
         await oldEdges.push({
                 from: from,
                 to: to,
-                k_out: edgeKOut,
+                k_out: (newKOut === 0) ? edgeKOut : newKOut,
                 color: color,
                 width: 3
             }
@@ -409,25 +410,6 @@ class NetworkGraph extends React.Component {
         });
     }
 
-    async changeEdgesKOut(from, to, new_k_out) {
-        let oldEdges = await this.state.edges.slice();
-        const index = oldEdges.findIndex(item =>
-            item.from === from && item.to === to
-        );
-        const edgesColor = oldEdges[index].color;
-        await oldEdges.splice(index, 1);
-        await oldEdges.push({
-                from: from,
-                to: to,
-                k_out: new_k_out,
-                color: edgesColor,
-                width: 3
-            }
-        )
-        await this.setState({
-            edges: oldEdges,
-        });
-    }
 
     /**
      * Colors whole graph back to default colors
@@ -510,7 +492,7 @@ class NetworkGraph extends React.Component {
         await this.sleepNow(this.state.timeout);
 
         // await console.log("fromVertex:", fromVertex, "toVertex:", toVertex);
-        console.log("delta:", this.state.delta);
+        // await console.log("delta:", this.state.delta);
 
 
         if (!(await this.testOrdering(this.state.from, this.state.to))) {
@@ -640,7 +622,7 @@ class NetworkGraph extends React.Component {
             }
 
             // Coloring backward-searched edges
-            await this.colorEdge(predecessor, start, "red");
+            await this.changeEdge(predecessor, start, "red");
             await this.setSubprocedureStep(2, 10);
             await this.sleepNow(this.state.timeout);
             let actualStatus = await this.backwardSearch(predecessor, w);
@@ -688,7 +670,7 @@ class NetworkGraph extends React.Component {
 
                 // Animation
                 //console.log("Searching forward edge: (", actual.id, ", ", successor.id, ")");
-                await this.colorEdge(actual.id, successor.id, "blue");
+                await this.changeEdge(actual.id, successor.id, "blue");
                 await this.setSubprocedureStep(3, 3);
                 await this.sleepNow(this.state.timeout);
 
@@ -755,8 +737,121 @@ class NetworkGraph extends React.Component {
 
     /**************************/
 
+    async insertEdgeDense() {
+        //await console.log(this.state);
+
+        let fromVertex = this.state.nodes[this.state.nodes.findIndex(node => node.id === this.state.from)],
+            toVertex = this.state.nodes[this.state.nodes.findIndex(node => node.id === this.state.to)];
+
+        await this.changeVertex(fromVertex.id, "orange", 0);
+        await this.changeVertex(toVertex.id, "orange", 0, 1);
+        toVertex.inDegree++;
+
+
+        await console.log(this.state.nodes);
+        await console.log(toVertex.inDegree);
+
+        await this.sleepNow(this.state.timeout);
+
+        if (fromVertex.level < toVertex.level) {
+            let j = Math.floor(Math.log2(Math.min(toVertex.level - fromVertex.level, toVertex.inDegree)));
+
+            await console.log(`j = ${j}`);
+
+            if (toVertex.inDegree === Math.pow(2, j)) {
+                let oldB = await this.state.b.slice();
+                oldB[j][toVertex.id] = await toVertex.level;
+                await this.setState({
+                    b: oldB
+                })
+
+                //await console.log(this.state);
+
+                let oldC = await this.state.c.slice();
+                oldC[j][toVertex.id] = 0;
+                oldC[j - 1][toVertex.id] = 0;
+                await this.setState({
+                    c: oldC
+                })
+            }
+
+            await this.addEdge(toVertex.level);
+
+            await console.log(this.state);
+
+            return false;
+        }
+
+        await this.addEdge(toVertex.level);
+
+        let T = [{from: fromVertex.id, to: toVertex.id}];
+
+        while (T.length) {
+            let currentEdge = await T.pop();
+            if (await this.traversalStep(currentEdge.from, currentEdge.to, T, fromVertex.id)) {
+                return true;
+            }
+        }
+
+
+        return false;
+    }
+
+    async traversalStep(from, to, T, v) {
+        if (to === v) {
+            return true;
+        }
+
+        let fromVertex = this.state.nodes[this.state.nodes.findIndex(node => node.id === this.state.from)],
+            toVertex = this.state.nodes[this.state.nodes.findIndex(node => node.id === this.state.to)];
+
+        if (fromVertex.level >= toVertex.level) {
+            await this.changeVertex(toVertex.id, toVertex.color, (fromVertex.level - toVertex.level) + 1);
+
+            toVertex = this.state.nodes[this.state.nodes.findIndex(node => node.id === this.state.to)];
+        } else {
+            let j = Math.floor(Math.log2(Math.min(toVertex.level - fromVertex.level, toVertex.inDegree)));
+
+            let oldC = await this.state.c.slice();
+            oldC[j][toVertex.id] += 1;
+            await this.setState({
+                c: oldC
+            })
+
+            if (this.state.c[j][toVertex.id] === 3 * Math.pow(2, j)) {
+
+                let oldC = await this.state.c.slice();
+                oldC[j][toVertex.id] = 0;
+                await this.setState({
+                    c: oldC
+                })
+
+                await this.changeVertex(toVertex.id, toVertex.color, Math.max(toVertex.level, this.state.b[j][toVertex.id] + Math.pow(2, j)));
+
+                toVertex = this.state.nodes[this.state.nodes.findIndex(node => node.id === this.state.to)];
+
+                let oldB = await this.state.b.slice();
+                oldB[j][toVertex.id] = toVertex.level;
+                await this.setState({
+                    b: oldB
+                })
+            }
+        }
+
+        let edgesToBeTraversed = this.state.edges.filter((edge) => {return edge.from === toVertex.id && edge.k_out <= toVertex.level});
+
+        for (let i = 0; i < edgesToBeTraversed.length; ++i) {
+            T.push({from: edgesToBeTraversed[i].from, to: edgesToBeTraversed[i].to});
+        }
+
+        const edgeColor = this.state.edges[this.state.edges.findIndex(e => e.from === fromVertex.id && e.to === toVertex.id)].color;
+
+        await this.changeEdge(fromVertex.id, toVertex.id, edgeColor, toVertex.level);
+
+        return false;
+    }
+
     async mainProcedure() {
-        // console.log(this.state.from, this.state.to)
         if (!this.state.inProgress) {
             const from = parseInt(this.state.from);
             const to = parseInt(this.state.to);
@@ -774,14 +869,20 @@ class NetworkGraph extends React.Component {
                 if (await this.insertEdgeSparse()) {
                     // Adding edge which creates cycle (green color)
                     await this.addEdge();
-                    await this.colorEdge(this.state.from, this.state.to, "green");
+                    await this.changeEdge(this.state.from, this.state.to, "green");
 
                     await console.log("cycle");
                     await window.alert("Zjištěn cyklus!");
                 }
 
             } else if (this.state.graphType === "dense") {
-                console.log("prdel");
+                if (await this.insertEdgeDense()) {
+                    await this.addEdge();
+                    await this.changeEdge(this.state.from, this.state.to, "green");
+
+                    await console.log("cycle");
+                    await window.alert("Zjištěn cyklus!");
+                }
             }
             await this.changeProgress();
         }
