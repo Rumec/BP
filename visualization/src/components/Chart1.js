@@ -5,6 +5,8 @@ import SparseGraphPseudocode from "./SparseGraphPseudocode";
 import SparseGraphSubprocedure from "./SparseGraphSubprocedure";
 import SparseGraphDemoLoading from "./SparseGraphDemoLoading";
 import SparseGraphDemoStep from "./SparseGraphDemoStep";
+import DenseGraphPseudocode from "./DenseGraphPseudocode";
+import DenseGraphSubprocedure from "./DenseGraphSubprocedure";
 //import DFS from "./DFS";
 //import SparseGraph from "./SparseGraph";
 
@@ -33,7 +35,7 @@ class NetworkGraph extends React.Component {
             '#E64D66', '#4DB380', '#FF4D4D', '#99E6E6', '#6666FF'];
 
         this.state = {
-            graphType: "sparse",
+            graphType: "dense",
             sequenceToAdd: [],
             subprocedure: 0,
             subprocedureStep: 0,
@@ -748,22 +750,25 @@ class NetworkGraph extends React.Component {
         await this.changeVertex(toVertex.id, "orange", 0, 1);
         toVertex.inDegree++;
 
-        //await console.log(this.state.nodes);
-        //await console.log(toVertex.inDegree);
-
-        //await this.sleepNow(this.state.timeout);
-
+        await this.changeValue("mainProcedureStep", 1);
+        await this.sleepNow(this.state.timeout);
 
 
         if (fromVertex.level < toVertex.level) {
+
+            await this.changeValue("mainProcedureStep", 2);
+            await this.sleepNow(this.state.timeout);
+            await this.changeValue("mainProcedureStep", 3);
+            await this.sleepNow(this.state.timeout);
+
             let j = Math.floor(Math.log2(Math.min(toVertex.level - fromVertex.level, toVertex.inDegree)));
 
-            await console.log(`j = ${j}`);
+            //await console.log(`j = ${j}`);
 
             if (toVertex.inDegree === Math.pow(2, j)) {
 
-                //await console.log(`new degree possible`);
-                //await console.log(`setting new B value`);
+                await this.changeValue("mainProcedureStep", 4);
+                await this.sleepNow(this.state.timeout);
 
                 let oldB = await this.state.b.slice();
                 oldB[j][toVertex.id] = await toVertex.level;
@@ -771,37 +776,53 @@ class NetworkGraph extends React.Component {
                     b: oldB
                 })
 
-                //await console.log(this.state);
-
-                //await console.log(`setting new C value`);
-
                 let oldC = await this.state.c.slice();
                 oldC[j][toVertex.id] = 0;
                 oldC[j - 1][toVertex.id] = 0;
                 await this.setState({
                     c: oldC
                 })
+                await this.changeValue("mainProcedureStep", 5);
+                await this.sleepNow(this.state.timeout);
             }
 
-            //await console.log(`adding edge`);
+            await this.changeValue("mainProcedureStep", 6);
+            await this.sleepNow(this.state.timeout);
+            await this.changeValue("mainProcedureStep", 7);
+            await this.sleepNow(this.state.timeout);
 
             await this.addEdge(toVertex.level);
 
-            //await console.log(this.state);
+            await this.changeValue("mainProcedureStep", 8);
+            await this.sleepNow(this.state.timeout);
 
             return false;
         }
 
         await this.addEdge(toVertex.level);
+        await this.changeEdge(fromVertex.id, toVertex.id, "white");
+
+        await this.changeValue("mainProcedureStep", 9);
+        await this.sleepNow(this.state.timeout);
 
         let T = [{from: fromVertex.id, to: toVertex.id}];
 
         while (T.length) {
+
+            await this.changeValue("mainProcedureStep", 10);
+            await this.sleepNow(this.state.timeout);
+
             let currentEdge = await T.pop();
 
-            await console.log(currentEdge);
+            //await console.log(currentEdge);
 
+            await this.changeValue("mainProcedureStep", 11);
+            await this.sleepNow(this.state.timeout);
             if (await this.traversalStep(currentEdge.from, currentEdge.to, T, fromVertex.id)) {
+
+                await this.changeValue("mainProcedureStep", 12);
+                await this.sleepNow(this.state.timeout);
+                await this.changeValue("mainProcedureStep", 0);
 
                 return true;
             }
@@ -809,32 +830,58 @@ class NetworkGraph extends React.Component {
             //await console.log(`traversed edge: from: ${currentEdge.from} to: ${currentEdge.to}`)
             //await console.log(this.state.edges)
         }
-
         await this.colorGraphToDefault();
+
+        await this.changeValue("mainProcedureStep", 13);
+        await this.sleepNow(this.state.timeout);
+
+        await this.clearVisitedVertices();
+        await this.changeValue("mainProcedureStep", 0);
+        await this.setSubprocedureStep(0, 0);
+
         return false;
     }
 
     async traversalStep(from, to, T, v) {
+
+        await this.changeEdge(from, to, "blue");
+        await this.setSubprocedureStep(1, 0);
+        await this.sleepNow(this.state.timeout);
+
         if (to === v) {
+            await this.setSubprocedureStep(1, 1);
+            await this.sleepNow(this.state.timeout);
+            await this.setSubprocedureStep(1, 2);
+            await this.sleepNow(this.state.timeout);
+            await this.setSubprocedureStep(0, 0);
+            await this.sleepNow(this.state.timeout);
             return true;
         }
 
         let fromVertex = this.state.nodes[this.state.nodes.findIndex(node => node.id === from)],
             toVertex = this.state.nodes[this.state.nodes.findIndex(node => node.id === to)];
 
-        await console.log(`Entered edge: (${fromVertex.id}, ${toVertex.id}`);
+        //await console.log(`Entered edge: (${fromVertex.id}, ${toVertex.id}`);
 
         if (fromVertex.level >= toVertex.level) {
+            await this.setSubprocedureStep(1, 3);
+            await this.sleepNow(this.state.timeout);
 
             //await console.log(`k(v) = ${fromVertex.level}, k(w) = ${toVertex.level}`)
             //await console.log(`Changing vertex`)
-
             await this.changeVertex(toVertex.id, toVertex.color, (fromVertex.level - toVertex.level) + 1);
 
             //await console.log(`vertex changed!`)
+            await this.setSubprocedureStep(1, 4);
+            await this.sleepNow(this.state.timeout);
 
             toVertex = this.state.nodes[this.state.nodes.findIndex(node => node.id === toVertex.id)];
         } else {
+            await this.setSubprocedureStep(1, 5);
+            await this.sleepNow(this.state.timeout);
+            await this.setSubprocedureStep(1, 6);
+            await this.sleepNow(this.state.timeout);
+
             let j = Math.floor(Math.log2(Math.min(toVertex.level - fromVertex.level, toVertex.inDegree)));
 
             let oldC = await this.state.c.slice();
@@ -844,6 +891,10 @@ class NetworkGraph extends React.Component {
             })
 
             if (this.state.c[j][toVertex.id] === 3 * Math.pow(2, j)) {
+                await this.setSubprocedureStep(1, 7);
+                await this.sleepNow(this.state.timeout);
+                await this.setSubprocedureStep(1, 8);
+                await this.sleepNow(this.state.timeout);
 
                 let oldC = await this.state.c.slice();
                 oldC[j][toVertex.id] = 0;
@@ -863,24 +914,38 @@ class NetworkGraph extends React.Component {
             }
         }
 
-        let edgesToBeTraversed = this.state.edges.filter((edge) => {return edge.from === toVertex.id && edge.k_out <= toVertex.level});
+        let edgesToBeTraversed = this.state.edges.filter((edge) => {
+            return edge.from === toVertex.id && edge.k_out <= toVertex.level
+        });
 
         //await console.log("Edges to be traversed: " + edgesToBeTraversed);
 
         for (let i = 0; i < edgesToBeTraversed.length; ++i) {
+            await this.setSubprocedureStep(1, 9);
+            await this.sleepNow(this.state.timeout);
+            await this.setSubprocedureStep(1, 10);
+            await this.sleepNow(this.state.timeout);
+
             T.push({from: edgesToBeTraversed[i].from, to: edgesToBeTraversed[i].to});
         }
 
         //await console.log(`Actual edge: (${fromVertex.id}, ${toVertex.id}`);
         //await console.log(this.state.edges);
 
+        await this.setSubprocedureStep(1, 11);
+        await this.sleepNow(this.state.timeout);
+
         const index = this.state.edges.findIndex(e => e.from === fromVertex.id && e.to === toVertex.id);
 
-        await console.log(index);
+        //await console.log(index);
 
         const edgeColor = this.state.edges[index].color;
 
         await this.changeEdge(fromVertex.id, toVertex.id, edgeColor, toVertex.level);
+
+        await this.setSubprocedureStep(1, 12);
+        await this.sleepNow(this.state.timeout);
+        await this.setSubprocedureStep(0, 0);
 
         return false;
     }
@@ -1159,16 +1224,21 @@ class NetworkGraph extends React.Component {
                     <div
                         className={"pseudoCode"}
                     >
-                        {(this.state.graphType === "sparse")? <SparseGraphPseudocode step={this.state.mainProcedureStep}/> : "dense" }
+                        {(this.state.graphType === "sparse") ?
+                            <SparseGraphPseudocode step={this.state.mainProcedureStep}/> :
+                            <DenseGraphPseudocode step={this.state.mainProcedureStep}/>}
                     </div>
 
                     <div
                         className={"procedure"}
                     >
-                        {(this.state.graphType === "sparse")? <SparseGraphSubprocedure
+                        {(this.state.graphType === "sparse") ? <SparseGraphSubprocedure
                             procedure={this.state.subprocedure}
                             step={this.state.subprocedureStep}
-                        /> : "dense"}
+                        /> : <DenseGraphSubprocedure
+                            procedure={this.state.subprocedure}
+                            step={this.state.subprocedureStep}
+                        />}
                     </div>
                 </div>
                 <hr/>
