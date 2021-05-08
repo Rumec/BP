@@ -1043,7 +1043,7 @@ class NetworkGraph extends React.Component {
                     </button>
                 </div>
                 <div>
-                    <h2 style={{margin: 40}}>Delta= {this.state.delta}</h2>
+                    {(this.state.graphType === "sparse")? <h2 style={{margin: 40}}>&#916; = {this.state.delta}</h2> : ""}
                 </div>
             </div>
         )
@@ -1128,7 +1128,7 @@ class NetworkGraph extends React.Component {
                     </button>
                 </div>
                 <div>
-                    <h2 style={{margin: 40}}>Delta= {this.state.delta}</h2>
+                    {(this.state.graphType === "sparse")? <h2 style={{margin: 40}}>&#916; = {this.state.delta}</h2> : ""}
                 </div>
             </div>
         )
