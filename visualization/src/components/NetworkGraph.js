@@ -4,11 +4,8 @@ import './graphStyle.css';
 import SparseGraphPseudocode from "./SparseGraphPseudocode";
 import SparseGraphSubprocedure from "./SparseGraphSubprocedure";
 import SparseGraphDemoLoading from "./SparseGraphDemoLoading";
-import SparseGraphDemoStep from "./SparseGraphDemoStep";
 import DenseGraphPseudocode from "./DenseGraphPseudocode";
 import DenseGraphSubprocedure from "./DenseGraphSubprocedure";
-//import DFS from "./DFS";
-//import SparseGraph from "./SparseGraph";
 
 const RADIUS = 200;
 
@@ -43,10 +40,8 @@ class NetworkGraph extends React.Component {
             timeoutInput: 500,
             timeout: 500,
             followerList: {},
-
             e_in: {}, // JSON of lists in incoming edges
             delta: 0,
-
             inProgress: false,
             visited: [],
             addingEdge: false,
@@ -132,24 +127,10 @@ class NetworkGraph extends React.Component {
      * @param event - Object returned by event
      */
     handleChange(event) {
-        const {name, /*type, */ value/*, checked*/} = event.target;
-
-        //if (name === "from" || name === "to") {
+        const {name, value} = event.target;
         this.setState({
             [name]: parseInt(value)
         })
-        //}
-
-        /*
-        (type === "checkbox") ? this.setState({[name]: checked})
-            : (name === "addingEdge") ? this.setState(prevState => {
-                return {
-                    addingEdge: !prevState.addingEdge
-                }
-            })
-            : this.setState({[name]: value});
-
-         */
     }
 
     /**
@@ -167,10 +148,8 @@ class NetworkGraph extends React.Component {
             timeoutInput: 500,
             timeout: 500,
             followerList: {},
-
             e_in: {}, // JSON of lists in incoming edges
             delta: 0,
-
             inProgress: false,
             visited: [],
             addingEdge: false,
@@ -1169,10 +1148,10 @@ class NetworkGraph extends React.Component {
                     <div
                         className={"graphBox"}
                     >
-                        <text style={{
+                        <span style={{
                             fontWeight: "bold"
                         }}>Počet vrcholů:
-                        </text>
+                        </span>
                         <input
                             name={"numberOfVertices"}
                             type={"number"}
@@ -1236,8 +1215,7 @@ class NetworkGraph extends React.Component {
                             procedure={this.state.subprocedure}
                             step={this.state.subprocedureStep}
                         /> : <DenseGraphSubprocedure
-                            //procedure={this.state.subprocedure}
-                            procedure={1}
+                            procedure={this.state.subprocedure}
                             step={this.state.subprocedureStep}
                         />}
                     </div>
@@ -1253,62 +1231,3 @@ class NetworkGraph extends React.Component {
 }
 
 export default NetworkGraph;
-
-
-/*
-                <DFS
-                    state={this.state}
-                    changeProgress={this.changeProgress}
-                    colorGraphToDefault={this.colorGraphToDefault}
-                    sleepNow={this.sleepNow}
-                    visited={this.visited}
-                    colorEdgeToRed={this.colorEdgeToRed}
-                    changeVertex={this.changeVertex}
-                    addVisitedVertices={this.addVisitedVertex}
-                    clearVisitedVertices={this.clearVisitedVertices}
-                />
-
-                <button
-                    name={"addingEdge"}
-                    onClick={(!this.state.inProgress) ? this.handleChange : () => {
-                    }}
-                >
-                    Add edge with mouse
-                </button>
-
-                {this.DisplayAddingStatus()}
-
-                <button
-                    name={"addingEdge"}
-                    onClick={(!this.state.inProgress) ? this.handleChange : () => {
-                    }}
-                >
-                    Add edge with mouse
-                </button>
-
-                 <button
-                    onClick={(!this.state.inProgress) ? this.addEdge : () => {
-                    }}
-                >
-                    Add edge
-                </button>
-
-
-
-                <SparseGraph
-                    state={this.state}
-                    sleepNow={this.sleepNow}
-                    handleChange={this.handleChange}
-                    colorGraphToDefault={this.colorGraphToDefault}
-                    colorEdgeToRed={this.colorEdgeToRed}
-                    changeProgress={this.changeProgress}
-                    changeVertex={this.changeVertex}
-                    addVisitedVertex={this.addVisitedVertex}
-                    clearVisitedVertices={this.clearVisitedVertices}
-                    addVertexToEin={this.addVertexToEin}
-                    setEinOfVertex={this.setEinOfVertex}
-                    addEdge={this.addEdge}
-                    incrementM={this.incrementM}
-                    setDelta={this.setDelta}
-                />
- */
