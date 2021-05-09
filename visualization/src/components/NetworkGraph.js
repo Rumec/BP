@@ -775,6 +775,11 @@ class NetworkGraph extends React.Component {
             await this.changeValue("mainProcedureStep", 8);
             await this.sleepNow(this.state.timeout);
 
+            await this.colorGraphToDefault();
+            await this.clearVisitedVertices();
+            await this.changeValue("mainProcedureStep", 0);
+            await this.setSubprocedureStep(0, 0);
+
             return false;
         }
 
