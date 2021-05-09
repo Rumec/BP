@@ -1236,7 +1236,8 @@ class NetworkGraph extends React.Component {
                             procedure={this.state.subprocedure}
                             step={this.state.subprocedureStep}
                         /> : <DenseGraphSubprocedure
-                            procedure={this.state.subprocedure}
+                            //procedure={this.state.subprocedure}
+                            procedure={1}
                             step={this.state.subprocedureStep}
                         />}
                     </div>
