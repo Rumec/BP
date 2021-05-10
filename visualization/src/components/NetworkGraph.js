@@ -242,7 +242,9 @@ class NetworkGraph extends React.Component {
             to: to,
             color: "black",
             width: 3,
-            k_out: k_out
+            k_out: k_out,
+            label: (k_out === 1) ? "" : k_out.toString(),
+            font: {background: "white"},
         });
 
         const oldFollowerList = await this.state.followerList;
@@ -377,11 +379,14 @@ class NetworkGraph extends React.Component {
             item.from === from && item.to === to
         );
         const edgeKOut = oldEdges[index].k_out;
+        const oldLabel = oldEdges[index].label;
         await oldEdges.splice(index, 1);
         await oldEdges.push({
                 from: from,
                 to: to,
                 k_out: (newKOut === 0) ? edgeKOut : newKOut,
+                label: (newKOut === 0) ? "" : newKOut.toString(),
+                font: {background: "white"},
                 color: color,
                 width: 3
             }
@@ -407,6 +412,8 @@ class NetworkGraph extends React.Component {
                 from: oldEdges[0].from,
                 to: oldEdges[0].to,
                 k_out: oldEdges[0].k_out,
+                label: oldEdges[0].label,
+                font: {background: "white"},
                 color: "black",
                 width: 3
             };
@@ -959,7 +966,6 @@ class NetworkGraph extends React.Component {
                 }
             } else if (this.state.graphType === "dense") {
                 if (await this.insertEdgeDense()) {
-                    await this.addEdge();
                     await this.changeEdge(this.state.from, this.state.to, "green");
 
                     await console.log("cycle");
@@ -967,6 +973,7 @@ class NetworkGraph extends React.Component {
                 }
             }
             await this.changeProgress();
+            console.log(this.state.edges)
         }
     }
 
@@ -984,7 +991,7 @@ class NetworkGraph extends React.Component {
         await this.changeValue("sequenceToAdd", tmp);
     }
 
-    SparseGraphDemoStep() {
+    DemoStep() {
         function renderTupleList(list) {
             let out = "";
             for (let i = 0; i < list.length; ++i) {
@@ -1004,7 +1011,6 @@ class NetworkGraph extends React.Component {
                 <div>
                     <p>Sekvence hran k vložení: {renderTupleList(this.state.sequenceToAdd)}</p>
                     <p>Přidávám hranu z {this.state.from} do {this.state.to}</p>
-                    <br/>
                     <button
                         onClick={this.step}
                     >
@@ -1027,7 +1033,8 @@ class NetworkGraph extends React.Component {
                     </button>
                 </div>
                 <div>
-                    {(this.state.graphType === "sparse")? <h2 style={{margin: 40}}>&#916; = {this.state.delta}</h2> : ""}
+                    {(this.state.graphType === "sparse") ?
+                        <h2 style={{margin: 40}}>&#916; = {this.state.delta}</h2> : ""}
                 </div>
             </div>
         )
@@ -1056,9 +1063,6 @@ class NetworkGraph extends React.Component {
         return (
             <div
                 className={"graphLayout"}
-                style={{
-                    marginLeft: 10
-                }}
             >
                 <div>
                     <p>Přidávám hranu z {this.state.from} do {this.state.to}</p>
@@ -1112,7 +1116,8 @@ class NetworkGraph extends React.Component {
                     </button>
                 </div>
                 <div>
-                    {(this.state.graphType === "sparse")? <h2 style={{margin: 40}}>&#916; = {this.state.delta}</h2> : ""}
+                    {(this.state.graphType === "sparse") ?
+                        <h2 style={{margin: 40}}>&#916; = {this.state.delta}</h2> : ""}
                 </div>
             </div>
         )
@@ -1171,7 +1176,7 @@ class NetworkGraph extends React.Component {
                         </button>
                     </div>
                     <div
-                        className={"pseudoCode"}
+                        className={"graphBox"}
                     >
                         <SparseGraphDemoLoading
                             state={this.state}
@@ -1196,7 +1201,7 @@ class NetworkGraph extends React.Component {
                     className={"graphLayout"}
                 >
                     <div
-                        className={"graphBox"}
+                        className={"graph"}
                     >
                         <Graph
                             graph={graph}
@@ -1226,8 +1231,9 @@ class NetworkGraph extends React.Component {
                     </div>
                 </div>
                 <hr/>
+
                 {(this.state.sequenceToAdd.length !== 0) ?
-                    this.SparseGraphDemoStep()
+                    this.DemoStep()
                     : this.manualAdding()}
             </div>
 

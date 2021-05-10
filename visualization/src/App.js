@@ -5,9 +5,7 @@ import NetworkGraph from "./components/NetworkGraph";
 function App(props) {
     return(
         <div className={"App"}>
-            <header className={"App-header"}>
-                <NetworkGraph />
-            </header>
+            <NetworkGraph />
         </div>
     )
 }
