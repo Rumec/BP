@@ -21,11 +21,11 @@ function DenseGraphPseudocode(props) {
             <div style={{textIndent: 15, fontStyle: "italic", backgroundColor: (props.step === 9)?"yellow" : "white"}}>T &#8592; {"{(v, w)}"}</div>
                 <div style={{textIndent: 15, backgroundColor: (props.step === 10)?"yellow" : "white"}}><span style={{fontWeight: "bold"}}>while</span><span style={{fontStyle: "italic",}}> T &#8800; &#8709; </span><span style={{fontWeight: "bold"}}>do</span></div>
             <div style={{textIndent: 30, fontStyle: "italic", backgroundColor: (props.step === 10)?"yellow" : "white"}}>(x, y) &#8592; pop(T) </div>
-                <div style={{textIndent: 30, backgroundColor: (props.step === 12)?"yellow" : "white"}}><span style={{fontWeight: "bold"}}>if</span> PruchodHranou(<span style={{fontStyle: "italic",}}>x, y, T, v</span>) <span style={{fontWeight: "bold"}}>then</span></div>
+                <div style={{textIndent: 30, backgroundColor: (props.step === 11)?"yellow" : "white"}}><span style={{fontWeight: "bold"}}>if</span> PruchodHranou(<span style={{fontStyle: "italic",}}>x, y, T, v</span>) <span style={{fontWeight: "bold"}}>then</span></div>
                 <div style={{textIndent: 45, backgroundColor: (props.step === 12)?"yellow" : "white"}}><span style={{fontWeight: "bold"}}>return</span><span style={{fontStyle: "italic",}}>{" True"}</span></div>
             <div style={{textIndent: 30}}><span style={{fontWeight: "bold"}}>end if </span></div>
             <div style={{textIndent: 15}}><span style={{fontWeight: "bold"}}>end while </span></div>
-                <div style={{textIndent: 15, backgroundColor: (props.step === 12)?"yellow" : "white"}}><span style={{fontWeight: "bold"}}>return</span><span style={{fontStyle: "italic",}}>{" False"}</span></div>
+                <div style={{textIndent: 15, backgroundColor: (props.step === 13)?"yellow" : "white"}}><span style={{fontWeight: "bold"}}>return</span><span style={{fontStyle: "italic",}}>{" False"}</span></div>
         </div>
     )
 }

@@ -27,7 +27,7 @@ function SparseGraphPseudocode(props) {
             <div style={{textIndent: 30, fontWeight: "bold"}}>{"end if"}</div>
             <div style={{textIndent: 15, fontWeight: "bold"}}>{"end if"}</div>
                 <div style={{textIndent: 15, backgroundColor: (props.step === 12)?"yellow" : "white"}}>PridaniHrany(<span style={{fontStyle: "italic",}}>v, w</span>)</div>
-                <div style={{textIndent: 15, backgroundColor: (props.step === 12)?"yellow" : "white"}}><span style={{fontWeight: "bold"}}>return</span><span style={{fontStyle: "italic",}}>{" False"}</span></div>
+                <div style={{textIndent: 15, backgroundColor: (props.step === 13)?"yellow" : "white"}}><span style={{fontWeight: "bold"}}>return</span><span style={{fontStyle: "italic",}}>{" False"}</span></div>
         </div>
     )
 }

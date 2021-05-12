@@ -778,6 +778,7 @@ class NetworkGraph extends React.Component {
             await this.sleepNow(this.state.timeout);
 
             await this.addEdge(toVertex.level);
+            await this.changeEdge(fromVertex.id, toVertex.id, "blue", toVertex.level);
 
             await this.changeValue("mainProcedureStep", 8);
             await this.sleepNow(this.state.timeout);
@@ -860,7 +861,8 @@ class NetworkGraph extends React.Component {
 
             //await console.log(`k(v) = ${fromVertex.level}, k(w) = ${toVertex.level}`)
             //await console.log(`Changing vertex`)
-            await this.changeVertex(toVertex.id, toVertex.color, (fromVertex.level - toVertex.level) + 1);
+            const newColor = (toVertex.id === this.state.to)? "orange" : this.color[toVertex.level + (fromVertex.level - toVertex.level)];
+            await this.changeVertex(toVertex.id, newColor, (fromVertex.level - toVertex.level) + 1);
 
             //await console.log(`vertex changed!`)
             await this.setSubprocedureStep(1, 4);
@@ -966,7 +968,13 @@ class NetworkGraph extends React.Component {
                 }
             } else if (this.state.graphType === "dense") {
                 if (await this.insertEdgeDense()) {
-                    await this.changeEdge(this.state.from, this.state.to, "green");
+
+                    const index = this.state.edges.findIndex(item =>
+                        item.from === from && item.to === to
+                    );
+                    const edgeKOut = this.state.edges[index].k_out;
+
+                    await this.changeEdge(this.state.from, this.state.to, "green", edgeKOut);
 
                     await console.log("cycle");
                     await window.alert("Zjištěn cyklus!");
