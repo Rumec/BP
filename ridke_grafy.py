@@ -168,7 +168,8 @@ def dopredny_pruzkum(graf, w, B):
     :return:        True pokud byl objevem cyklus
                     False jinak
     """
-    F = {w}  # Mnozina vrcholu urcenych k doprednemu pruzkumu
+    # Mnozina vrcholu urcenych k doprednemu pruzkumu
+    F = {w}
     while F:
         aktualni = F.pop()
         # Pruzkum nasledniku aktualne prozkoumavaneho vrcholu

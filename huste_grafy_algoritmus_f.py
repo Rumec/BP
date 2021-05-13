@@ -1,4 +1,5 @@
-import math, heapq
+import heapq
+import math
 
 
 class Graf:
@@ -67,36 +68,60 @@ def vlozeni_hrany(graf, v, w):
 
     if graf.k[v] < graf.k[w]:
         # Neni poruseno slabe topologicke usporadani
+
+        # Vypocet rozsahu pruchodu hrany
         j = math.floor(math.log(min(graf.k[w] - graf.k[v], graf.d[w]), 2))
         if graf.d[w] == pow(2, j):
+            # Existuje nová hodnota rozsahu pruchodu hrany
             graf.b[j][w] = graf.k[w]
             graf.c[j][w] = 0
-            graf.c[j - 1, w] = 0
+            graf.c[j - 1][w] = 0
+        # Vlozeni hrany do prioritni fronty vystupnich hrany vrcholu v spolu s hodnotou priblizne vystupni urovne k_out
         heapq.heappush(graf.e_out[v], (graf.k[w], (v, w)))
         return False
+    # Mnozina kandidatskych hran k pruzkumu
     T = {(v, w)}
     while T:
         x, y = T.pop()
         if pruchod_hranou(graf, x, y, T, v):
+            # Cyklus byl detekovan
             return True
     return False
 
 
 def pruchod_hranou(graf, x, y, T, v):
+    """
+    Pruchod hranou, provadi upravu urovne ciloveho vrcholu (je-li poruseno slabe topologicke usporadani). Zajistuje take
+    aktualizaci priblizne vystupni urovne hrany k_out
+
+    :param graf:    Objekt reprezentujici graf
+    :param x:       Pocatecni vrchol hrany
+    :param y:       Koncovy vrhcol hrany
+    :param T:       Mnozina kandidatskych hran k pruzkumu
+    :param v:       vrchol, z nehoz vede vkladana hrana
+    :return:        True pokud byl detekovan cyklus
+                    False jinak
+    """
     if y == v:
+        # Cyklus byl detekovan
         return True
 
     if graf.k[x] >= graf.k[y]:
+        # Oprava slabeho topologickeho usporadani
         graf.k[y] = graf.k[x] + 1
     else:
+        # Vypocet rozsahu pruchodu hrany
         j = math.floor(math.log(min(graf.k[y] - graf.k[x], graf.d[y]), 2))
         graf.c[j][y] += 1
 
         if graf.c[j][y] == 3 * pow(2, j):
+            # Vyuziti odhadu ke zvyseni urovne vrcholu (uroven vrcholu vsak neporusuje slabe topologicke usporadani)
             graf.c[j][y] = 0
             graf.k[y] = max(graf.k[y], graf.b[j][y] + pow(2, j))
             graf.b[j][y] = graf.k[y]
 
+    # Pridani vsech vystupnich hran z vrcholu y s pribliznou vystupni urovni nizsi nebo rovnou aktualni urovni k(y) do
+    # mnoziny kandidatskych hran k pruzkumu T
     while len(graf.e_out[y]) > 0 and graf.e_out[y][0][0] <= graf.k[y]:
         o = heapq.heappop(graf.e_out[y])
         T.add(o[1])
@@ -104,10 +129,10 @@ def pruchod_hranou(graf, x, y, T, v):
     return False
 
 
-def test_ilustrace_vypoctu():
-    sekvence_hran = [(1, 2), (6, 7), (7, 8), (8, 9), (2, 3), (9, 10), (4, 5), (3, 4), (5, 6), (10, 1)]
-    husty_graf_rychly(10, sekvence_hran)
+def test_ilustrace_vypoctu_husty_graf():
+    sekvence_hran = [(1, 2), (1, 4), (3, 4), (2, 3), (5, 6), (5, 7), (6, 7), (4, 5), (1, 3), (7, 4)]
+    husty_graf_rychly(7, sekvence_hran)
 
 
 if __name__ == '__main__':
-    test_ilustrace_vypoctu()
+    test_ilustrace_vypoctu_husty_graf()
