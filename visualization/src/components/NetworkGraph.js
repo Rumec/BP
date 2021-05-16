@@ -29,10 +29,21 @@ class NetworkGraph extends React.Component {
             '#4D8066', '#809980', '#E6FF80', '#1AFF33', '#999933',
             '#FF3380', '#CCCC00', '#66E64D', '#4D80CC', '#9900B3',
             '#FF6633', '#FFB399', '#FF33FF', '#FFFF99', '#00B3E6',
-            '#E64D66', '#4DB380', '#FF4D4D', '#99E6E6', '#6666FF'];
+            '#E64D66', '#4DB380', '#FF4D4D', '#99E6E6', '#6666FF',
+            '#1AB399', '#F16FF1', '#F91AFF', '#06C6FF', '#4DB3FF',
+            '#E6B333', '#3366E6', '#999966', '#99FF99', '#B34D4D',
+            '#80B300', '#809900', '#E6B3B3', '#6680B3', '#66991A',
+            '#FF99E6', '#CCFF1A', '#FF1A66', '#E6331A', '#33FFCC',
+            '#66994D', '#B366CC', '#4D8000', '#B33300', '#CC80CC',
+            '#E666B3', '#33991A', '#CC9999', '#B3B31A', '#00E680',
+            '#4D8066', '#809980', '#E6FF80', '#1AFF33', '#999933',
+            '#FF3380', '#CCCC00', '#66E64D', '#4D80CC', '#9900B3',
+            '#FF6633', '#FFB399', '#FF33FF', '#FFFF99', '#00B3E6',
+            '#E64D66', '#4DB380', '#FF4D4D', '#99E6E6', '#6666FF'
+        ];
 
         this.state = {
-            graphType: "dense",
+            graphType: "sparse",
             sequenceToAdd: [],
             subprocedure: 0,
             subprocedureStep: 0,
@@ -381,7 +392,6 @@ class NetworkGraph extends React.Component {
             item.from === from && item.to === to
         );
         const edgeKOut = oldEdges[index].k_out;
-        const oldLabel = oldEdges[index].label;
         await oldEdges.splice(index, 1);
         await oldEdges.push({
                 from: from,
@@ -863,7 +873,7 @@ class NetworkGraph extends React.Component {
 
             //await console.log(`k(v) = ${fromVertex.level}, k(w) = ${toVertex.level}`)
             //await console.log(`Changing vertex`)
-            const newColor = (toVertex.id === this.state.to)? "orange" : this.color[toVertex.level + (fromVertex.level - toVertex.level)];
+            const newColor = (toVertex.id === this.state.to) ? "orange" : this.color[toVertex.level + (fromVertex.level - toVertex.level)];
             await this.changeVertex(toVertex.id, newColor, (fromVertex.level - toVertex.level) + 1);
 
             //await console.log(`vertex changed!`)
@@ -1013,38 +1023,43 @@ class NetworkGraph extends React.Component {
 
         return (
             <div
-                className={"graphLayout"}
-                style={{
-                    marginLeft: 10
-                }}
+                className={"demo-step"}
             >
-                <div>
+                <div
+                    className={"demo-step__column1"}
+                >
                     <p>Sekvence hran k vložení: {renderTupleList(this.state.sequenceToAdd)}</p>
                     <p>Přidávám hranu z {this.state.from} do {this.state.to}</p>
                     <button
-                        onClick={this.state.inProgress? () => {} : this.step}
+                        className={"demo-step__button"}
+                        onClick={this.state.inProgress ? () => {
+                        } : this.step}
                     >
                         Přidat hranu ze sekvence
                     </button>
-                    <br/><br/>
+                </div>
+                <div
+                    className={"demo-step__column2"}
+                >
                     <label>
+                        <span style={{
+                            fontWeight: "bold",
+                        }}>Délka kroku [ms]:
+                        </span>
                         <input
                             name={"timeoutInput"}
                             type={"number"}
                             value={this.state.timeoutInput}
                             onChange={this.handleChange}
                         />
-                        Délka kroku
                     </label>
                     <button
                         onClick={this.setTimeoutFromInput}
                     >
                         Nastav délku kroku
                     </button>
-                </div>
-                <div>
                     {(this.state.graphType === "sparse") ?
-                        <h2 style={{margin: 40}}>&#916; = {this.state.delta}</h2> : ""}
+                        <h2>&#916; = {this.state.delta}</h2> : ""}
                 </div>
             </div>
         )
@@ -1072,14 +1087,19 @@ class NetworkGraph extends React.Component {
     manualAdding() {
         return (
             <div
-                className={"graphLayout"}
+                className={"demo-step"}
             >
-                <div>
+                <div
+                    className={"demo-step__column1"}
+                >
                     <p>Přidávám hranu z {this.state.from} do {this.state.to}</p>
-                    <br/>
 
-                    <div>
-                        <label>
+                    <div className={"demo-step__row"}>
+                        <label className={"demo-step__input-group"}>
+                            <span style={{
+                                fontWeight: "bold"
+                            }}>Výchozí vrchol:
+                        </span>
                             <input
                                 name={"from"}
                                 type={"number"}
@@ -1087,10 +1107,12 @@ class NetworkGraph extends React.Component {
                                 onChange={(!this.state.inProgress) ? this.handleChange : () => {
                                 }}
                             />
-                            Výchozí vrchol
                         </label>
-
-                        <label>
+                        <label className={"demo-step__input-group"}>
+                            <span style={{
+                                fontWeight: "bold",
+                            }}>Koncový vrchol:
+                        </span>
                             <input
                                 name={"to"}
                                 type={"number"}
@@ -1098,36 +1120,42 @@ class NetworkGraph extends React.Component {
                                 onChange={(!this.state.inProgress) ? this.handleChange : () => {
                                 }}
                             />
-                            Cílový vrchol
                         </label>
-
-                        <button
-                            onClick={() => {
-                                this.mainProcedure();
-                            }}
-                        >
-                            Vlož hranu
-                        </button>
                     </div>
+                    <button
+                        className={"demo-step__button"}
+                        onClick={() => {
+                            this.mainProcedure();
+                        }}
+                    >
+                        Vlož hranu
+                    </button>
                     <br/>
+
+                </div>
+                <div
+                    className={"demo-step__column2"}
+                >
                     <label>
+                        <span style={{
+                            fontWeight: "bold",
+                        }}>Délka kroku [ms]:
+                        </span>
                         <input
                             name={"timeoutInput"}
                             type={"number"}
                             value={this.state.timeoutInput}
                             onChange={this.handleChange}
                         />
-                        Délka kroku
                     </label>
                     <button
                         onClick={this.setTimeoutFromInput}
                     >
                         Nastav délku kroku
                     </button>
-                </div>
-                <div>
+
                     {(this.state.graphType === "sparse") ?
-                        <h2 style={{margin: 40}}>&#916; = {this.state.delta}</h2> : ""}
+                        <h2>&#916; = {this.state.delta}</h2> : ""}
                 </div>
             </div>
         )
@@ -1152,21 +1180,23 @@ class NetworkGraph extends React.Component {
         return (
             <div>
                 <div
-                    className={"topPanel"}
+                    className={"top-panel"}
                 >
                     <div
-                        className={"graphBox"}
+                        className={"top-panel__element"}
                     >
-                        <span style={{
-                            fontWeight: "bold"
-                        }}>Počet vrcholů:
+                        <label>
+                            <span style={{
+                                fontWeight: "bold"
+                            }}>Počet vrcholů:
                         </span>
-                        <input
-                            name={"numberOfVertices"}
-                            type={"number"}
-                            value={this.state.numberOfVertices}
-                            onChange={this.handleChange}
-                        />
+                            <input
+                                name={"numberOfVertices"}
+                                type={"number"}
+                                value={this.state.numberOfVertices}
+                                onChange={this.handleChange}
+                            />
+                        </label>
                         <button
                             onClick={(!this.state.inProgress) ? this.generateGraph : () => {
                             }}
@@ -1175,7 +1205,7 @@ class NetworkGraph extends React.Component {
                         </button>
                     </div>
                     <div
-                        className={"graphBox"}
+                        className={"top-panel__element"}
                     >
                         <GraphDemoLoading
                             state={this.state}
@@ -1185,9 +1215,14 @@ class NetworkGraph extends React.Component {
                         {(this.state.sequenceToAdd.length !== 0 && !this.state.inProgress) ? this.cancelDemoButton() : () => {
                         }}
                     </div>
-                    <div>
+                    <div
+                        className={"top-panel__element"}
+                    >
                         <label>
-                            Vyberte algoritmus:
+                            <span style={{
+                                fontWeight: "bold"
+                            }}>Výběr algoritmu:
+                        </span>
                             <select value={this.state.graphType} onChange={this.handleDropdownChange}>
                                 <option value={"sparse"}>Algoritmus pro řídký graf</option>
                                 <option value={"dense"}>Algoritmus pro hustý graf</option>
@@ -1207,7 +1242,6 @@ class NetworkGraph extends React.Component {
                             options={options}
                         />
                     </div>
-
                     <div
                         className={"pseudoCode"}
                     >
@@ -1215,7 +1249,6 @@ class NetworkGraph extends React.Component {
                             <SparseGraphPseudocode step={this.state.mainProcedureStep}/> :
                             <DenseGraphPseudocode step={this.state.mainProcedureStep}/>}
                     </div>
-
                     <div
                         className={"procedure"}
                     >
@@ -1229,7 +1262,6 @@ class NetworkGraph extends React.Component {
                     </div>
                 </div>
                 <hr/>
-
                 {(this.state.sequenceToAdd.length !== 0) ?
                     this.DemoStep()
                     : this.manualAdding()}

@@ -22,14 +22,49 @@
     width: 30%;
 }
 
-.topPanel {
+.top-panel {
     display: flex;
     flex-direction: row;
     justify-content: space-between;
+}
+
+.top-panel__element {
+    margin: 0.5rem 0.5rem 0.5rem 0.5rem;
 }
 
 .bottomPanel {
     margin-left: 10px;
     margin-bottom: 10px;
     margin-top: 10px;
+}
+
+.demo-step {
+    display: flex;
+    flex-direction: row;
+    margin: 0 1rem 0 1rem;
+}
+
+.demo-step__column1{
+    display: flex;
+    flex-direction: column;
+
+    width: 60%;
+}
+
+.demo-step__column2{
+    margin: 1rem 0 0 0;
+}
+
+.demo-step__row {
+    display: flex;
+    flex-direction: row;
+}
+
+.demo-step__input-group {
+    margin: 0 0 1rem 0;
+    width: 20rem;
+}
+
+.demo-step__button {
+    width: 38.5rem;
 }

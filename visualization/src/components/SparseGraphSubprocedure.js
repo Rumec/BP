@@ -73,7 +73,7 @@ function SparseGraphSubprocedurePseudocode(props) {
 function SparseGraphSubprocedure(props) {
     return(
         <div>
-            <h3>Podprocedura:</h3>
+            <h3>Dílčí funkce:</h3>
             <SparseGraphSubprocedurePseudocode
                 procedure={props.procedure}
                 step={props.step}

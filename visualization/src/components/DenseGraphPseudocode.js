@@ -3,7 +3,7 @@ import React from "react";
 function DenseGraphPseudocode(props) {
     return (
         <div>
-                <h3>Hlavni procedura:</h3>
+                <h3>Hlavní funkce:</h3>
 
                 <div style={{fontWeight: "bold"}}>function VlozeniHrany(<span style={{fontStyle: "italic",}}>v, w</span>)</div>
             <div style={{textIndent: 15, fontStyle: "italic", backgroundColor: (props.step === 1)?"yellow" : "white"}}>d(w) &#8592; d(w) + 1</div>

@@ -36,7 +36,7 @@ function DenseGraphSubprocedurePseudocode(props) {
 function DenseGraphSubprocedure(props) {
     return(
         <div>
-            <h3>Podprocedura:</h3>
+            <h3>Dílčí funkce:</h3>
             <DenseGraphSubprocedurePseudocode
                 procedure={props.procedure}
                 step={props.step}
