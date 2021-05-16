@@ -3,7 +3,7 @@ import Graph from "react-graph-vis";
 import './graphStyle.css';
 import SparseGraphPseudocode from "./SparseGraphPseudocode";
 import SparseGraphSubprocedure from "./SparseGraphSubprocedure";
-import SparseGraphDemoLoading from "./SparseGraphDemoLoading";
+import GraphDemoLoading from "./GraphDemoLoading";
 import DenseGraphPseudocode from "./DenseGraphPseudocode";
 import DenseGraphSubprocedure from "./DenseGraphSubprocedure";
 
@@ -139,28 +139,30 @@ class NetworkGraph extends React.Component {
      * @param event
      */
     handleDropdownChange(event) {
-        this.setState({
-            graphType: event.target.value,
-            sequenceToAdd: [],
-            subprocedure: 0,
-            subprocedureStep: 0,
-            mainProcedureStep: 0,
-            timeoutInput: 500,
-            timeout: 500,
-            followerList: {},
-            e_in: {}, // JSON of lists in incoming edges
-            delta: 0,
-            inProgress: false,
-            visited: [],
-            addingEdge: false,
-            from: 0,
-            to: 0,
-            numberOfVertices: 0,
-            nodes: [],
-            edges: [],
-            b: [],
-            c: []
-        });
+        if (!this.state.inProgress) {
+            this.setState({
+                graphType: event.target.value,
+                sequenceToAdd: [],
+                subprocedure: 0,
+                subprocedureStep: 0,
+                mainProcedureStep: 0,
+                timeoutInput: 500,
+                timeout: 500,
+                followerList: {},
+                e_in: {}, // JSON of lists in incoming edges
+                delta: 0,
+                inProgress: false,
+                visited: [],
+                addingEdge: false,
+                from: 0,
+                to: 0,
+                numberOfVertices: 0,
+                nodes: [],
+                edges: [],
+                b: [],
+                c: []
+            });
+        }
     }
 
     /**
@@ -1020,7 +1022,7 @@ class NetworkGraph extends React.Component {
                     <p>Sekvence hran k vložení: {renderTupleList(this.state.sequenceToAdd)}</p>
                     <p>Přidávám hranu z {this.state.from} do {this.state.to}</p>
                     <button
-                        onClick={this.step}
+                        onClick={this.state.inProgress? () => {} : this.step}
                     >
                         Přidat hranu ze sekvence
                     </button>
@@ -1136,7 +1138,7 @@ class NetworkGraph extends React.Component {
 
         const options = {
             layout: {
-                //hierarchical: true
+                hierarchical: false
             },
             edges: {
                 color: "#000000",
@@ -1145,19 +1147,8 @@ class NetworkGraph extends React.Component {
             physics: {
                 enabled: false
             },
-            height: "500px",
         };
 
-        const events = {
-            // arrow function can access scope of whole component class
-            selectNode: async (event) => {
-                //await this.selectVertex(event)
-            },
-
-            dragStart: async (event) => {
-                //await this.selectVertex(event)
-            }
-        };
         return (
             <div>
                 <div
@@ -1186,7 +1177,7 @@ class NetworkGraph extends React.Component {
                     <div
                         className={"graphBox"}
                     >
-                        <SparseGraphDemoLoading
+                        <GraphDemoLoading
                             state={this.state}
                             changeValue={this.changeValue}
                             generateGraph={this.generateGraph}
@@ -1214,7 +1205,6 @@ class NetworkGraph extends React.Component {
                         <Graph
                             graph={graph}
                             options={options}
-                            events={events}
                         />
                     </div>
 
