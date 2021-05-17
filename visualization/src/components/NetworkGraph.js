@@ -58,6 +58,7 @@ class NetworkGraph extends React.Component {
             addingEdge: false,
             from: 0,
             to: 0,
+            numberOfVerticesInput: 0,
             numberOfVertices: 0,
             nodes: [],
             edges: [],
@@ -158,7 +159,6 @@ class NetworkGraph extends React.Component {
                 subprocedureStep: 0,
                 mainProcedureStep: 0,
                 timeoutInput: 500,
-                timeout: 500,
                 followerList: {},
                 e_in: {}, // JSON of lists in incoming edges
                 delta: 0,
@@ -182,6 +182,9 @@ class NetworkGraph extends React.Component {
      * @returns {Promise<void>}
      */
     async generateGraph() {
+        await this.setState({
+            numberOfVertices : this.state.numberOfVerticesInput
+        });
         let actualAngle = 0;
         let nodesArr = [];
         let bArr = [];
@@ -956,10 +959,10 @@ class NetworkGraph extends React.Component {
     }
 
     async mainProcedure() {
-        if (!this.state.inProgress) {
-            const from = parseInt(this.state.from);
-            const to = parseInt(this.state.to);
+        const from = parseInt(this.state.from);
+        const to = parseInt(this.state.to);
 
+        if (!this.state.inProgress && !isNaN(from) && !isNaN(to)) {
             await this.changeProgress();
 
             if (to === from) {
@@ -975,7 +978,7 @@ class NetworkGraph extends React.Component {
                     await this.addEdge();
                     await this.changeEdge(this.state.from, this.state.to, "green");
 
-                    await console.log("cycle");
+                    // await console.log("cycle");
                     await window.alert("Zjištěn cyklus!");
                 }
             } else if (this.state.graphType === "dense") {
@@ -988,12 +991,12 @@ class NetworkGraph extends React.Component {
 
                     await this.changeEdge(this.state.from, this.state.to, "green", edgeKOut);
 
-                    await console.log("cycle");
+                    // await console.log("cycle");
                     await window.alert("Zjištěn cyklus!");
                 }
             }
             await this.changeProgress();
-            console.log(this.state.edges)
+            // console.log(this.state.edges)
         }
     }
 
@@ -1068,6 +1071,7 @@ class NetworkGraph extends React.Component {
     async cancelDemo() {
         await this.changeValue("sequenceToAdd", []);
         await this.changeValue("numberOfVertices", 0);
+        await this.changeValue("numberOfVerticesInput", 0);
         await this.setSubprocedureStep(0, 0);
         await this.generateGraph();
         //await console.log(this.state.sequenceToAdd);
@@ -1191,9 +1195,9 @@ class NetworkGraph extends React.Component {
                             }}>Počet vrcholů:
                         </span>
                             <input
-                                name={"numberOfVertices"}
+                                name={"numberOfVerticesInput"}
                                 type={"number"}
-                                value={this.state.numberOfVertices}
+                                value={this.state.numberOfVerticesInput}
                                 onChange={this.handleChange}
                             />
                         </label>
