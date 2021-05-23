@@ -4,7 +4,7 @@ import enum
 
 class Graf:
     """
-    Trida Graf obsahuje reprezentaci grafu. Mnoziny in() a out() jsou pojmenovany e_in() a e_out(),
+    Trida Graf obsahuje reprezentaci grafu. Seznamy množin in() a out() jsou pojmenovany e_in() a e_out(),
     protoze Python pouziva 'in' jako rezervovane slovo, out mezi rezervovana slova nepatri ale prefix 'e_' pouzijeme
     kvuli konzistenci.
     Konstruktor tridy v sobe zapouzdruje inicializaci promennych a datovych struktur na vychozi hodnoty.
@@ -110,8 +110,8 @@ def test_usporadani(graf, v, w):
     cyklu.
 
     :param graf:    graf do nehoz hranu vkladame
-    :param v:       vrchol z nehoz vkladana hrana vychazi
-    :param w:       vrchol do nehoz vkladana hrana miri
+    :param v:       pocatecni vrchol hrany
+    :param w:       koncovy vrchol hrany
     :return:        True pokud k(v) < k(w)
                     False jinak
     """
@@ -126,7 +126,7 @@ def zpetny_pruzkum(graf, start, w, B):
 
     :param graf:    graf do nehoz hranu vkladame
     :param start:   vrchol, ktery algoritmus aktualne prozkoumava
-    :param w:       vrchol, do ktereho vede vkladana hrana
+    :param w:       koncovy vrchol vkladane hrany
     :param B:       mnozina navstivenych vrcholu
     :return:        Status.Mene_nez_delta_hran - prosel mene nez delta hran
                     Status.Cyklus_nalezen - narazil na vrchol w, oznamujeme tedy vznik cyklu
@@ -166,7 +166,7 @@ def dopredny_pruzkum(graf, w, B):
     pripadnym opravam pseudotopologickeho usporadani.
 
     :param graf:    graf do nehoz vkladame hranu
-    :param w:       vrchol, do ktereho vede vkladana hrana, z tohoto vrhcolu dopredny pruzkum zaciname
+    :param w:       koncovy vrchol vkladane hrany, z tohoto vrhcolu dopredny pruzkum zaciname
     :param B:       mnozina vrcholu navstivenych zpetnym pruzkumem
     :return:        True pokud byl objevem cyklus
                     False jinak
@@ -195,8 +195,8 @@ def pridani_hrany(graf, v, w):
     Pridani hrany (v, w) do grafu. Funkce zaroven aktualizuje pocet hran v grafu a hodnotu promenne delta.
 
     :param graf:    graf do nehoz hranu vkladame
-    :param v:       vrchol, z nehoz vkladana hrana vystupuje
-    :param w:       vrchol, do nehoz vkladana hrana vstupuje
+    :param v:       pocatecni vrchol vkladane hrany
+    :param w:       koncovy vrchol vkladane hrany
     """
     graf.e_out[v].add(w)
     if graf.k[v] == graf.k[w]:

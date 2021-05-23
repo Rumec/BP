@@ -4,10 +4,10 @@ import math
 
 class Graf:
     """
-    Trida Graf obsahuje reprezentaci grafu. Mnoziny in() a out() jsou pojmenovany e_in() a e_out(),
-    protoze Python pouziva 'in' jako rezervovane slovo, out mezi rezervovana slova nepatri ale prefix 'e_' pouzijeme
-    kvuli konzistenci.
-    Konstruktor tridy v sobe zapouzdruje inicializaci promennych a datovych struktur na vychozi hodnoty.
+
+    Trida Graf obsahuje reprezentaci grafu. Seznam out() pojmenujeme jako e_out() pro zachovani konzistence s
+    algoritmem pro ridke grafy. Konstruktor tridy v sobe zapouzdruje inicializaci promennych a datovych struktur na
+    vychozi hodnoty.
 
     Atributy:
         n:      pocet vrcholu grafu
@@ -15,7 +15,7 @@ class Graf:
         d:      seznam vstupnich stupnu vsech vrcholu
         e_out:  seznam obsahujici prioritni frontu (minimovou haldu) vystupnich hran out() pro vsechny vrcholy, prefix
                 e_ pouzivame pro konzistenci s implementaci algoritmu pro ridke grafy
-        b:      seznam mezi vrcholu pri danem rozsahu pruchodu
+        b:      seznam mezi urovne vrcholu pri danem rozsahu pruchodu
         c:      pocet navstev vrcholu pri danem rozsahu pruchodu
 
     """
@@ -82,7 +82,7 @@ def vlozeni_hrany(graf, v, w):
         # Vlozeni hrany do prioritni fronty vystupnich hrany vrcholu v spolu s hodnotou priblizne vystupni urovne k_out
         heapq.heappush(graf.e_out[v], (graf.k[w], (v, w)))
         return False
-    # Mnozina kandidatskych hran k pruzkumu
+    # Mnozina kandidatnich hran k pruzkumu
     T = {(v, w)}
     while T:
         x, y = T.pop()
@@ -97,10 +97,10 @@ def pruchod_hranou(graf, x, y, T, v):
     Pruchod hranou, provadi upravu urovne ciloveho vrcholu (je-li poruseno slabe topologicke usporadani). Zajistuje take
     aktualizaci priblizne vystupni urovne hrany k_out
 
-    :param graf:    Objekt reprezentujici graf
-    :param x:       Pocatecni vrchol hrany
-    :param y:       Koncovy vrhcol hrany
-    :param T:       Mnozina kandidatskych hran k pruzkumu
+    :param graf:    objekt reprezentujici graf
+    :param x:       pocatecni vrchol hrany
+    :param y:       koncovy vrhcol hrany
+    :param T:       mnozina kandidatnich hran k pruzkumu
     :param v:       vrchol, z nehoz vede vkladana hrana
     :return:        True pokud byl detekovan cyklus
                     False jinak
@@ -124,7 +124,7 @@ def pruchod_hranou(graf, x, y, T, v):
             graf.b[j][y] = graf.k[y]
 
     # Pridani vsech vystupnich hran z vrcholu y s pribliznou vystupni urovni nizsi nebo rovnou aktualni urovni k(y) do
-    # mnoziny kandidatskych hran k pruzkumu T
+    # mnoziny kandidatnich hran k pruzkumu T
     while len(graf.e_out[y]) > 0 and graf.e_out[y][0][0] <= graf.k[y]:
         o = heapq.heappop(graf.e_out[y])
         T.add(o[1])
