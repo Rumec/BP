@@ -4,7 +4,10 @@ import math
 
 class Graf:
     """
-    Trida Graf obsahuje reprezentaci grafu. Zaroven v sobe zapouzdruje datove struktury a promenne algoritmu.
+    Trida Graf obsahuje reprezentaci grafu. Mnoziny in() a out() jsou pojmenovany e_in() a e_out(),
+    protoze Python pouziva 'in' jako rezervovane slovo, out mezi rezervovana slova nepatri ale prefix 'e_' pouzijeme
+    kvuli konzistenci.
+    Konstruktor tridy v sobe zapouzdruje inicializaci promennych a datovych struktur na vychozi hodnoty.
 
     Atributy:
         n:      pocet vrcholu grafu
@@ -46,7 +49,7 @@ def husty_graf_rychly(vrcholy, sekvence_hran):
     graf = Graf(vrcholy)
 
     for v, w in sekvence_hran:
-        # Od cisel vrcholu odecitame 1 kvli indexovani od 0
+        # Od cisel vrcholu odecitame 1 kvuli indexovani od 0
         if vlozeni_hrany(graf, v - 1, w - 1):
             print("Vlozeni hrany ({}, {}) vytvorilo cyklus!".format(v, w))
             return True
@@ -130,6 +133,9 @@ def pruchod_hranou(graf, x, y, T, v):
 
 
 def test_ilustrace_vypoctu_husty_graf():
+    """
+    Vlozeni testovaci sekvence hran. Stejna sekvence byla pouzita pro ilustraci vypoctu v textove casti prace.
+    """
     sekvence_hran = [(1, 2), (1, 4), (3, 4), (2, 3), (5, 6), (5, 7), (6, 7), (4, 5), (1, 3), (7, 4)]
     husty_graf_rychly(7, sekvence_hran)
 
